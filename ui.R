@@ -20,7 +20,7 @@ shinyUI(fluidPage(
       #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
       tabPanel(
         "Initial inspection",
-        tableOutput("table")
+        plotOutput("initialPlot")
       )
     )
   )
