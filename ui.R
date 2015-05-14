@@ -9,7 +9,10 @@ shinyUI(fluidPage(
   sidebarPanel(
     fileInput('file', 'Choose CSV file', accept=c('text/csv', 
                                                   'text/comma-separated-values,text/plain', 
-                                                  '.csv'))
+                                                  '.csv')),
+    numericInput('minSize', 'Set the minimum granule size', 0),
+    numericInput('maxSize', 'Set the maximum granule size', 1000),
+    checkboxInput('logOption', 'Log transform granule size', value = TRUE)
   ),
   
   mainPanel(
