@@ -16,6 +16,7 @@ shinyServer(function(input, output) {
     longData$size <- as.numeric(longData$size)
     dfOut <- filter(longData, size > input$minSize,
                     size < input$maxSize)
+    if(!is.null(input$peak1))
     #     longData <- longData %>%
     #       group_by(sample) %>%
     #       mutate(index = row_number())
@@ -50,17 +51,31 @@ shinyServer(function(input, output) {
       p2 <- longData %>%
       group_by(sample) %>%
       ggvis(~size, ~proportion) %>%
-      layer_lines()
+      layer_lines(opacity = input_slider(0, 1, value = 1))
     
     if (input$logOption)
       p2 <- longData %>%
       group_by(sample) %>%
-      ggvis(~log(size), ~proportion) %>%
-      layer_lines() %>%
-      scale_numeric("x", trans = "pow")
+      ggvis(~size, ~proportion) %>%
+      layer_lines(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
+      scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
     
     bind_shiny(p2, "p2", "p_ui")
     
+  })
+  
+  output$peakmu <- renderUI({
+    if (is.null(input$peakNumber))
+      return(NULL)
+    
+    if (!is.na(input$peakNumber)){
+      n <- input$peakNumber
+      uilist <- vector(mode = "list", n)
+      for(i in 1:n) {
+        uilist[[i]] <- numericInput(paste0("peak", i), paste("Estimated mean for peak", i), NULL)
+      }
+      return(uilist)
+    }
   })
   
 })
