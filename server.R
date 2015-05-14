@@ -16,7 +16,6 @@ shinyServer(function(input, output) {
     longData$size <- as.numeric(longData$size)
     dfOut <- filter(longData, size > input$minSize,
                     size < input$maxSize)
-    if(!is.null(input$peak1))
     #     longData <- longData %>%
     #       group_by(sample) %>%
     #       mutate(index = row_number())
