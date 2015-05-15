@@ -28,6 +28,7 @@ shinyUI(fluidPage(
         "Initial inspection",
         ggvisOutput("p2"),
         uiOutput("p_ui"),
+        textOutput('temp'),
         tableOutput("tempTable")
       )
     )

@@ -36,7 +36,7 @@ shinyServer(function(input, output) {
     if (is.null(dat))
       return(NULL)
     
-    ymax <- max(dat$proportion, na.rm = TRUE) * 1.5
+    ymax <- max(dat$proportion, na.rm = TRUE) * 1.2
   })
   # 
   #   output$initialPlot <- renderPlot({
@@ -66,45 +66,35 @@ shinyServer(function(input, output) {
       p2 <- longData %>%
         group_by(sample) %>%
         ggvis(~size, ~proportion) %>%
-        layer_lines(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
+        layer_paths(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
         scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
     
     
     if (!is.na(input$peakNumber)) {
       n <- input$peakNumber
-      xmin <- input$minSize
-      xmax <- input$maxSize
-      xseq <- seq(xmin, xmax, by = (xmax - xmin) / (n + 2))
-      xseq <- xseq[2:(n + 1)]
-      peakDat <- data.frame(x = rep(xseq, 2), y = rep(0, getLimits(), each = n), peak = rep(1:n, 2)) %>%
-        group_by(peak)
-      p2 <- p2 %>%
-        layer_paths(data = peakDat, ~x, ~y)
+      ymax <- getLimits()
+      xseq <- vector("numeric", length = n)
+      t <- input$peak1
+#       for(i in 1:n) 
+#         #xseq[[i]] <- i
+#         xseq[[i]] <- get(paste0("input$peak", i))
+#         
+      
+      #xseq <- as.numeric(input$peak1)
+#       peakDat <- data.frame(x = rep(xseq, 2), y = rep(c(0, ymax), each = n), peak = rep(1:n, 2)) %>%
+#         group_by(peak)
+#       p2 <- p2 %>%
+#         layer_paths(data = peakDat, ~x, ~y, stroke := "red")
     }
     bind_shiny(p2, "p2", "p_ui")
     
     
   })
   
-  
-  output$tempTable <- renderTable({
-    longData <- getData()
-    
-    if (is.null(longData))
-      return(NULL)
-    if (!is.na(input$peakNumber)) {
-      n <- input$peakNumber
-      ymax <- getLimits()
-      xmin <- input$minSize
-      xmax <- input$maxSize
-      xseq <- seq(xmin, xmax, by = (xmax - xmin) / (n + 2))
-      xseq <- xseq[2:(n + 1)]
-      peakDat <- data.frame(x = rep(xseq, 2), y = rep(c(0, ymax), each = n), peak = rep(1:n, 2)) %>%
-        group_by(peak)
-    }
-    
-  })
-  
+  output$temp <- renderText({
+    if (!is.na(input$peakNumber))
+      input$peak1
+    })
   
   output$peakmu <- renderUI({
     if (is.null(input$peakNumber))
