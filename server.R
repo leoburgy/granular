@@ -29,6 +29,15 @@ shinyServer(function(input, output) {
     return(dfOut)
     
   })
+  
+  getLimits <- reactive({
+    
+    dat <- getData()
+    if (is.null(dat))
+      return(NULL)
+    
+    ymax <- max(dat$proportion, na.rm = TRUE) * 1.5
+  })
   # 
   #   output$initialPlot <- renderPlot({
   #     longData <- getData()
@@ -44,34 +53,73 @@ shinyServer(function(input, output) {
   
   observe({
     longData <- getData()
+    
     if (is.null(longData))
       return(NULL)
     if (!input$logOption)
       p2 <- longData %>%
-      group_by(sample) %>%
-      ggvis(~size, ~proportion) %>%
-      layer_lines(opacity = input_slider(0, 1, value = 1))
+        group_by(sample) %>%
+        ggvis(~size, ~proportion) %>%
+        layer_lines(opacity := input_slider(0, 1, value = 1))
     
     if (input$logOption)
       p2 <- longData %>%
-      group_by(sample) %>%
-      ggvis(~size, ~proportion) %>%
-      layer_lines(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
-      scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
+        group_by(sample) %>%
+        ggvis(~size, ~proportion) %>%
+        layer_lines(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
+        scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
     
+    
+    if (!is.na(input$peakNumber)) {
+      n <- input$peakNumber
+      xmin <- input$minSize
+      xmax <- input$maxSize
+      xseq <- seq(xmin, xmax, by = (xmax - xmin) / (n + 2))
+      xseq <- xseq[2:(n + 1)]
+      peakDat <- data.frame(x = rep(xseq, 2), y = rep(0, getLimits(), each = n), peak = rep(1:n, 2)) %>%
+        group_by(peak)
+      p2 <- p2 %>%
+        layer_paths(data = peakDat, ~x, ~y)
+    }
     bind_shiny(p2, "p2", "p_ui")
     
+    
   })
+  
+  
+  output$tempTable <- renderTable({
+    longData <- getData()
+    
+    if (is.null(longData))
+      return(NULL)
+    if (!is.na(input$peakNumber)) {
+      n <- input$peakNumber
+      ymax <- getLimits()
+      xmin <- input$minSize
+      xmax <- input$maxSize
+      xseq <- seq(xmin, xmax, by = (xmax - xmin) / (n + 2))
+      xseq <- xseq[2:(n + 1)]
+      peakDat <- data.frame(x = rep(xseq, 2), y = rep(c(0, ymax), each = n), peak = rep(1:n, 2)) %>%
+        group_by(peak)
+    }
+    
+  })
+  
   
   output$peakmu <- renderUI({
     if (is.null(input$peakNumber))
       return(NULL)
     
+    
     if (!is.na(input$peakNumber)){
       n <- input$peakNumber
+      xmin <- input$minSize
+      xmax <- input$maxSize
+      xseq <- seq(xmin, xmax, by = (xmax - xmin) / (n + 2))
+      xseq <- xseq[2:(n + 1)]
       uilist <- vector(mode = "list", n)
       for(i in 1:n) {
-        uilist[[i]] <- numericInput(paste0("peak", i), paste("Estimated mean for peak", i), NULL)
+        uilist[[i]] <- sliderInput(paste0("peak", i), paste("Estimated mean for peak", i), input$minSize, input$maxSize, xseq[i])
       }
       return(uilist)
     }
