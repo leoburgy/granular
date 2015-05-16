@@ -70,32 +70,22 @@ shinyServer(function(input, output) {
         scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
     
     
-    if (!is.na(input$peakNumber)) {
+    if (!is.null(input$peak1)) {
       n <- input$peakNumber
       ymax <- getLimits()
-      xseq <- vector("numeric", length = n)
-      t <- input$peak1
-#       for(i in 1:n) 
-#         #xseq[[i]] <- i
-#         xseq[[i]] <- get(paste0("input$peak", i))
-#         
-      
-      #xseq <- as.numeric(input$peak1)
+      peakVals <- names(input)[grepl("peak[0-9]+", names(input))]
+#      xseq <- with(input, lapply(peakVals, get))
 #       peakDat <- data.frame(x = rep(xseq, 2), y = rep(c(0, ymax), each = n), peak = rep(1:n, 2)) %>%
 #         group_by(peak)
-#       p2 <- p2 %>%
-#         layer_paths(data = peakDat, ~x, ~y, stroke := "red")
-    }
+      peakDat <- data.frame(x = rep(input$peak1, 2), y = c(0, ymax), peak = rep(1, 2))
+      p2 <- p2 %>%
+        layer_paths(data = peakDat, ~x, ~y, stroke := "red")
+  }
     bind_shiny(p2, "p2", "p_ui")
     
     
   })
-  
-  output$temp <- renderText({
-    if (!is.na(input$peakNumber))
-      input$peak1
-    })
-  
+
   output$peakmu <- renderUI({
     if (is.null(input$peakNumber))
       return(NULL)
@@ -109,7 +99,7 @@ shinyServer(function(input, output) {
       xseq <- xseq[2:(n + 1)]
       uilist <- vector(mode = "list", n)
       for(i in 1:n) {
-        uilist[[i]] <- sliderInput(paste0("peak", i), paste("Estimated mean for peak", i), input$minSize, input$maxSize, xseq[i])
+        uilist[[i]] <- numericInput(paste0("peak", i), paste("Estimated mean for peak", i), input$minSize, input$maxSize, 0)
       }
       return(uilist)
     }
