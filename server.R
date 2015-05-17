@@ -114,9 +114,11 @@ shinyServer(function(input, output) {
       for(i in 1:n) {
         uilist[[i]] <- sliderInput(paste0("peak", i), 
                                    paste("Estimated mean for peak", i), 
-                                   xmin, 
+                                   ifelse(xmin == 0, 1e-6, xmin), 
                                    xmax, 
-                                   0)
+                                   ifelse(xmin == 0, 0.1, xmin),
+                                   0.1, 
+                                   FALSE)
       }
       return(uilist)
     }
