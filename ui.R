@@ -7,15 +7,16 @@ shinyUI(fluidPage(
   titlePanel("Starch Granule Mixture Classification"),
   
   #sidebarPanel for data upload, estimation of mu
-  sidebarPanel(
-    fileInput('file', 'Choose CSV file', accept=c('text/csv', 
-                                                  'text/comma-separated-values,text/plain', 
-                                                  '.csv')),
-    numericInput('minSize', HTML(paste0('Set the minimum granule size (', '&mu;', 'm)')), 0),
-    numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), 1000),
-    checkboxInput('logOption', 'Log transform granule size', value = TRUE),
-    numericInput('peakNumber', 'Number of peaks', min = 2, value = NULL),
-    uiOutput("peakmu")
+  tags$div(class = 'col-sm-4',
+           tags$form(class = 'well',
+                     fileInput('file', 'Choose CSV file', accept=c('text/csv', 
+                                                                   'text/comma-separated-values,text/plain', 
+                                                                   '.csv')),
+                     numericInput('minSize', HTML(paste0('Set the minimum granule size (', '&mu;', 'm)')), 0),
+                     numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), 1000),
+                     checkboxInput('logOption', 'Log transform granule size', value = TRUE),
+                     numericInput('peakNumber', 'Number of peaks', min = 2, value = NULL)),
+           uiOutput("peakmu")
   ),
   
   mainPanel(

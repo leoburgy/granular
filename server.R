@@ -102,7 +102,8 @@ shinyServer(function(input, output) {
         )
         )
       }
-      return(uilist)
+      uiout <- tags$form(class = 'col-sm-12', uilist)
+      return(uiout)
     }
   })
   
