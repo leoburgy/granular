@@ -26,7 +26,6 @@ shinyServer(function(input, output) {
     dat <- getData()
     if (is.null(dat))
       return(NULL)
-    
     ymax <- max(dat$proportion, na.rm = TRUE) * 1.2
   })
   
@@ -39,42 +38,39 @@ shinyServer(function(input, output) {
     if (is.null(input$logOption))
       return(NULL)
     
-    if (!input$logOption)
+    if (!input$logOption) {
       p2 <- longData %>%
       group_by(sample) %>%
       ggvis(~size, ~proportion) %>%
       layer_lines(opacity := input_slider(0, 1, value = 1))
+    }
     
-    if (input$logOption)
+    if (input$logOption) {
       p2 <- longData %>%
       group_by(sample) %>%
       ggvis(~size, ~proportion) %>%
       layer_paths(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
       scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
-        
-        
-        if (!is.null(input$peak1)) {
-          n <- input$peakNumber
-          ymax <- getLimits()
-          vals <- sapply(1:n, function(i) {
-            as.numeric(input[[paste0("peak", i)]])[1]
-          })
-          peakDat <- data.frame(x = rep(vals, 2), 
-                                y = rep(c(0, ymax), each = n), 
-                                peak = rep(1:n, 2))
-          p2 <- p2 %>%
-            layer_paths(data = group_by(peakDat, peak), ~x, ~y, stroke := "red")
-        }
-        bind_shiny(p2, "p2", "p_ui")
+    }
     
-    
+    if (!is.null(input$peak1)) {
+      n <- input$peakNumber
+      ymax <- getLimits()
+      vals <- sapply(1:n, function(i) {
+        as.numeric(input[[paste0("peak", i)]])[1]
+      })
+      peakDat <- data.frame(x = rep(vals, 2), 
+                            y = rep(c(0, ymax), each = n), 
+                            peak = rep(1:n, 2))
+      p2 <- p2 %>%
+        layer_paths(data = group_by(peakDat, peak), ~x, ~y, stroke := "red")
+    }
+    bind_shiny(p2, "p2", "p_ui")
   })
-  
   
   output$starchPar <- renderUI({
     if (is.null(input$file))
       return(NULL)
-    #if (!is.null(getData())){
     uiout <- tags$div(class = 'row-fluid',
                       tags$div(class = 'row half-gutter',
                                tags$div(class = 'col-sm-6', 
@@ -89,14 +85,12 @@ shinyServer(function(input, output) {
                                ),
                                tags$div(class = 'col-sm-6',
                                         checkboxInput('logOption', 'Log transform granule size', value = TRUE)
-                               ))
-    )#}
+                               )))
   })
   
   output$peakmu <- renderUI({
     if (is.null(input$peakNumber))
       return(NULL)
-    
     
     if (!is.na(input$peakNumber)){
       n <- input$peakNumber
@@ -118,12 +112,10 @@ shinyServer(function(input, output) {
                                                                                        round = FALSE,
                                                                                        width = '100%'))
                                      )
-        )
-        )
+        ))
       }
       uiout <- tags$form(class = 'col-sm-12', uilist)
       return(uiout)
     }
-  })
-  
+  })  
 })
