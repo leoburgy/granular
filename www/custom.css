@@ -1,0 +1,8 @@
+.half-gutter > [class*='col-'] {
+  position: relative;
+  // Prevent columns from collapsing when empty
+  min-height: 1px;
+  // Inner gutter via padding
+  padding-right: (@gutter / 2);
+  padding-left: (@gutter / 2);
+}
