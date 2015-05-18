@@ -90,15 +90,17 @@ shinyServer(function(input, output) {
       uilist <- vector(mode = "list", n)
       for(i in 1:n) {
         uilist[[i]] <- list(tags$div(class = 'row-fluid',
-                                     tags$div(class = 'col-sm-3', textInput(paste0("peakid", i), "Enter an ID for this peak")),
-                                     tags$div(class = 'col-sm-9', sliderInput(inputId = paste0("peak", i), 
-                                                                     label = HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
-                                                                     min = ifelse(xmin == 0, 1e-6, xmin), 
-                                                                     max = xmax, 
-                                                                     value = ifelse(xmin == 0, 0.1, xmin),
-                                                                     step = 0.1, 
-                                                                     round = FALSE)
-                                    )
+                                     tags$div(class = 'row half-gutter',
+                                              tags$div(class = 'col-sm-3', textInput(paste0("peakid", i), "Enter an ID for this peak")),
+                                              tags$div(class = 'col-sm-9', sliderInput(inputId = paste0("peak", i), 
+                                                                                       label = HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
+                                                                                       min = ifelse(xmin == 0, 1e-6, xmin), 
+                                                                                       max = xmax, 
+                                                                                       value = ifelse(xmin == 0, 0.1, xmin),
+                                                                                       step = 0.1, 
+                                                                                       round = FALSE,
+                                                                                       width = '100%'))
+                                     )
         )
         )
       }
