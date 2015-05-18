@@ -89,13 +89,14 @@ shinyServer(function(input, output) {
       xseq <- xseq[2:(n + 1)]
       uilist <- vector(mode = "list", n)
       for(i in 1:n) {
-        uilist[[i]] <- sliderInput(paste0("peak", i), 
-                                   paste("Estimated mean for peak", i), 
-                                   ifelse(xmin == 0, 1e-6, xmin), 
-                                   xmax, 
-                                   ifelse(xmin == 0, 0.1, xmin),
-                                   0.1, 
-                                   FALSE)
+        uilist[[i]] <- sliderInput(inputId = paste0("peak", i), 
+                                   label = #withMathJax(
+                                     HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
+                                   min = ifelse(xmin == 0, 1e-6, xmin), 
+                                   max = xmax, 
+                                   value = ifelse(xmin == 0, 0.1, xmin),
+                                   step = 0.1, 
+                                   round = FALSE)
       }
       return(uilist)
     }

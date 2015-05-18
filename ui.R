@@ -11,8 +11,8 @@ shinyUI(fluidPage(
     fileInput('file', 'Choose CSV file', accept=c('text/csv', 
                                                   'text/comma-separated-values,text/plain', 
                                                   '.csv')),
-    numericInput('minSize', 'Set the minimum granule size', 0),
-    numericInput('maxSize', 'Set the maximum granule size', 1000),
+    numericInput('minSize', HTML(paste0('Set the minimum granule size (', '&mu;', 'm)')), 0),
+    numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), 1000),
     checkboxInput('logOption', 'Log transform granule size', value = TRUE),
     numericInput('peakNumber', 'Number of peaks', min = 2, value = NULL),
     uiOutput("peakmu")
