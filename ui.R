@@ -3,6 +3,9 @@ library(ggvis)
 
 shinyUI(fluidPage(
   
+  tags$head(
+    tags$link(rel = 'stylesheet', type = 'text/css', href = 'custom.css')),
+  
   # Application title
   titlePanel("Starch Granule Mixture Classification"),
   
@@ -12,10 +15,20 @@ shinyUI(fluidPage(
                      fileInput('file', 'Choose CSV file', accept=c('text/csv', 
                                                                    'text/comma-separated-values,text/plain', 
                                                                    '.csv')),
-                     numericInput('minSize', HTML(paste0('Set the minimum granule size (', '&mu;', 'm)')), 0),
-                     numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), 1000),
-                     checkboxInput('logOption', 'Log transform granule size', value = TRUE),
-                     numericInput('peakNumber', 'Number of peaks', min = 2, value = NULL)),
+                     tags$div(class = 'row half-gutter',
+                              tags$div(class = 'col-sm-6', 
+                                       numericInput('minSize', HTML(paste0('Set the minimum granule size (', '&mu;', 'm)')), 0)
+                              ),
+                              tags$div(class = 'col-sm-6',
+                                       numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), 1000)
+                              )),
+                     tags$div(class = 'row half-gutter',
+                              tags$div(class = 'col-sm-6', 
+                                       numericInput('peakNumber', 'Number of peaks', min = 2, value = NULL)
+                              ),
+                              tags$div(class = 'col-sm-6',
+                                       checkboxInput('logOption', 'Log transform granule size', value = TRUE)
+                              ))),
            uiOutput("peakmu")
   ),
   
