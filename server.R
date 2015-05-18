@@ -10,17 +10,19 @@ shinyServer(function(input, output) {
     inFile <- input$file
     if (is.null(inFile))
       return(NULL)
+    if (is.null(input$logOption))
+      return(NULL)
+    
     wideData <- read.csv(inFile$datapath)
     longData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = sub("X", "", size))
     longData$size <- as.numeric(longData$size)
-    dfOut <- filter(longData, size > input$minSize,
-                    size < input$maxSize)
-    return(dfOut)
+    longData <- filter(longData, size > input$minSize,
+                       size < input$maxSize)
+    return(longData)
   })
   
   getLimits <- reactive({
-    
     dat <- getData()
     if (is.null(dat))
       return(NULL)
@@ -31,8 +33,12 @@ shinyServer(function(input, output) {
   observe({
     longData <- getData()
     
-    if (is.null(longData))
+    if (is.null(getData()))
       return(NULL)
+    
+    if (is.null(input$logOption))
+      return(NULL)
+    
     if (!input$logOption)
       p2 <- longData %>%
       group_by(sample) %>%
@@ -45,35 +51,46 @@ shinyServer(function(input, output) {
       ggvis(~size, ~proportion) %>%
       layer_paths(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
       scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
-    
-    
-    if (!is.null(input$peak1)) {
-      n <- input$peakNumber
-      ymax <- getLimits()
-      vals <- sapply(1:n, function(i) {
-        as.numeric(input[[paste0("peak", i)]])[1]
-      })
-      peakDat <- data.frame(x = rep(vals, 2), 
-                            y = rep(c(0, ymax), each = n), 
-                            peak = rep(1:n, 2))
-      p2 <- p2 %>%
-        layer_paths(data = group_by(peakDat, peak), ~x, ~y, stroke := "red")
-    }
-    bind_shiny(p2, "p2", "p_ui")
+        
+        
+        if (!is.null(input$peak1)) {
+          n <- input$peakNumber
+          ymax <- getLimits()
+          vals <- sapply(1:n, function(i) {
+            as.numeric(input[[paste0("peak", i)]])[1]
+          })
+          peakDat <- data.frame(x = rep(vals, 2), 
+                                y = rep(c(0, ymax), each = n), 
+                                peak = rep(1:n, 2))
+          p2 <- p2 %>%
+            layer_paths(data = group_by(peakDat, peak), ~x, ~y, stroke := "red")
+        }
+        bind_shiny(p2, "p2", "p_ui")
     
     
   })
   
-  output$temp <- renderText({
-    if (is.null(input$peak1))
+  
+  output$starchPar <- renderUI({
+    if (is.null(input$file))
       return(NULL)
-    
-    n <- input$peakNumber
-    ymax <- getLimits()
-    vals <- sapply(1:n, function(i) {
-      as.numeric(input[[paste0("peak", i)]])[1]
-    })
-    return(vals)
+    #if (!is.null(getData())){
+    uiout <- tags$div(class = 'row-fluid',
+                      tags$div(class = 'row half-gutter',
+                               tags$div(class = 'col-sm-6', 
+                                        numericInput('minSize', HTML(paste0('Set the minimum granule size (', '&mu;', 'm)')), 0)
+                               ),
+                               tags$div(class = 'col-sm-6',
+                                        numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), 1000)
+                               )),
+                      tags$div(class = 'row half-gutter',
+                               tags$div(class = 'col-sm-6', 
+                                        numericInput('peakNumber', 'Number of peaks', min = 2, value = NULL)
+                               ),
+                               tags$div(class = 'col-sm-6',
+                                        checkboxInput('logOption', 'Log transform granule size', value = TRUE)
+                               ))
+    )#}
   })
   
   output$peakmu <- renderUI({
