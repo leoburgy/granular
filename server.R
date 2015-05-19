@@ -29,9 +29,11 @@ shinyServer(function(input, output) {
     ymax <- max(dat$proportion, na.rm = TRUE) * 1.2
   })
   
-  observe({
+  output$ggplot <- renderPlot({
     longData <- getData()
-    
+    ymax <- getLimits()
+    xmin <- input$minSize
+    xmax <- input$maxSize
     if (is.null(getData()))
       return(NULL)
     
@@ -39,33 +41,50 @@ shinyServer(function(input, output) {
       return(NULL)
     
     if (!input$logOption) {
-      p2 <- longData %>%
-      group_by(sample) %>%
-      ggvis(~size, ~proportion) %>%
-      layer_lines(opacity := input_slider(0, 1, value = 1))
+      #       p2 <- longData %>%
+      #       group_by(sample) %>%
+      #       ggvis(~size, ~proportion) %>%
+      #       layer_lines(opacity := input_slider(0, 1, value = 1))
+      p2 <- ggplot(longData, aes(size, proportion)) + geom_line(aes(group = sample))
     }
     
     if (input$logOption) {
-      p2 <- longData %>%
-      group_by(sample) %>%
-      ggvis(~size, ~proportion) %>%
-      layer_paths(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
-      scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
+      #       p2 <- longData %>%
+      #       group_by(sample) %>%
+      #       ggvis(~size, ~proportion) %>%
+      #       layer_paths(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
+      #       scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
+      p2 <- ggplot(longData, aes(size, proportion)) + geom_line(aes(group = sample)) +
+        scale_x_log10()
     }
     
     if (!is.null(input$peak1)) {
       n <- input$peakNumber
-      ymax <- getLimits()
+      
       vals <- sapply(1:n, function(i) {
         as.numeric(input[[paste0("peak", i)]])[1]
       })
-      peakDat <- data.frame(x = rep(vals, 2), 
-                            y = rep(c(0, ymax), each = n), 
-                            peak = rep(1:n, 2))
-      p2 <- p2 %>%
-        layer_paths(data = group_by(peakDat, peak), ~x, ~y, stroke := "red")
+      labels <- sapply(1:n, function(i) {
+        as.character(input[[paste0("peakid", i)]])[1]
+      })
+      offset <- log((xmax - xmin)/20)
+      
+      peakDat <- data.frame(x = vals, peak = 1:n)
+      if (any(!is.na(labels)))
+        peakDat$label <- labels
+      else peakDat$label <- ""
+      peakDat$xoff <- with(peakDat, x - x * offset)
+      peakDat$ylabel <- with(peakDat, ymax / 1.2)
+      ## This is for the ggvis implementation
+      #       peakDat <- data.frame(x = rep(vals, 2), 
+      #                             y = rep(c(0, ymax), each = n), 
+      #                             peak = rep(1:n, 2))
+      p2 <- p2 + geom_vline(data = peakDat, aes(x = x), colour = "red") +
+      geom_text(data = peakDat, aes(x = xoff, y = ylabel, label = label))
+      
     }
-    bind_shiny(p2, "p2", "p_ui")
+    return(p2)
+    #bind_shiny(p2, "p2", "p_ui")
   })
   
   output$starchPar <- renderUI({
@@ -102,7 +121,7 @@ shinyServer(function(input, output) {
       for(i in 1:n) {
         uilist[[i]] <- list(tags$div(class = 'row-fluid',
                                      tags$div(class = 'row half-gutter',
-                                              tags$div(class = 'col-sm-3', textInput(paste0("peakid", i), "Enter an ID for this peak")),
+                                              tags$div(class = 'col-sm-3', textInput(paste0("peakid", i), "Enter an ID for this peak", "temp")),
                                               tags$div(class = 'col-sm-9', sliderInput(inputId = paste0("peak", i), 
                                                                                        label = HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
                                                                                        min = ifelse(xmin == 0, 1e-6, xmin), 
