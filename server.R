@@ -37,22 +37,30 @@ shinyServer(function(input, output) {
     
     ymax <- max(longData$proportion, na.rm = TRUE) * 1.2
     
-    vals <- sapply(1:n, function(i) {
-      as.numeric(input[[paste0("peak", i)]])[1]
-    })
+    if (is.na(input$peakNumber))
+      return(NULL)
     
-    labels <- sapply(1:n, function(i) {
-      as.character(input[[paste0("peakid", i)]])[1]
-    })
-    offset <- log((limits$xmax - limits$xmin)/20)
-    
-    peakDat <- data.frame(x = vals, peak = 1:n)
-    peakDat$label <- ""
-    if (any(!is.na(labels)))
-      peakDat$label <- labels
-    peakDat$xoff <- with(peakDat, x - x * offset)
-    peakDat$ylabel <- ymax / 1.2
-    return(peakDat)
+    if (!is.na(input$peakNumber) & input$peakNumber > 0){
+      if (!input$peakNumber > 0) {
+        return(NULL)
+      }
+      vals <- sapply(1:n, function(i) {
+        as.numeric(input[[paste0("peak", i)]])[1]
+      })
+      
+      labels <- sapply(1:n, function(i) {
+        as.character(input[[paste0("peakid", i)]])[1]
+      })
+      offset <- log((limits$xmax - limits$xmin)/20)
+      
+      peakDat <- data.frame(x = vals, peak = 1:n)
+      peakDat$label <- ""
+      if (any(!is.na(labels)))
+        peakDat$label <- labels
+      peakDat$xoff <- with(peakDat, x - x * offset)
+      peakDat$ylabel <- ymax / 1.2
+      return(peakDat)
+    }
   })
   
   output$ggplot <- renderPlot({
@@ -67,18 +75,19 @@ shinyServer(function(input, output) {
       p2 <- p2 + scale_x_log10()
     }
     
-    if(!is.null(input$peak1)) {
-      peakDat <- getVals()
-      p2 <- p2 + geom_vline(data = peakDat, aes(xintercept = x), colour = "red") 
-      if(any(!is.na(peakDat$label))) {
-        p2 <- p2 + geom_text(data = peakDat, aes(x = x, y = ylabel, label = label))
+    if(!is.null(input$peak1) & !is.na(input$peakNumber)) {
+      if(input$peak1 > 0) {
+        peakDat <- getVals()
+        p2 <- p2 + geom_vline(data = peakDat, aes(xintercept = x), colour = "red") 
+        if(any(!is.na(peakDat$label))) {
+          p2 <- p2 + geom_text(data = peakDat, aes(x = x, y = ylabel, label = label))
+        }
       }
     }
-    
-    
-    
     return(p2)
   })
+  
+  output$temp <- renderText(input$peakNumber)
   
   output$starchPar <- renderUI({
     if (is.null(input$file))
@@ -104,14 +113,17 @@ shinyServer(function(input, output) {
     if (is.null(input$peakNumber))
       return(NULL)
     
-    if (!is.na(input$peakNumber)){
+    if (!is.na(input$peakNumber) & input$peakNumber > 0){
+      if (!input$peakNumber > 0) {
+        return(NULL)
+      }
       n <- input$peakNumber
       xmin <- input$minSize
       xmax <- input$maxSize
       xseq <- seq(xmin, xmax, by = (xmax - xmin) / (n + 2))
       xseq <- xseq[2:(n + 1)]
       uilist <- vector(mode = "list", n)
-      for(i in 1:n) {
+      for(i in seq_len(n)) {
         uilist[[i]] <- list(tags$div(class = 'row-fluid',
                                      tags$div(class = 'row half-gutter',
                                               tags$div(class = 'col-sm-3', textInput(paste0("peakid", i), "Enter an ID for this peak", i)),
