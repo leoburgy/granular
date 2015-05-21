@@ -3,8 +3,12 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(ggvis)
+library(scales)
 
 shinyServer(function(input, output) {
+  
+  plotTheme <- theme(panel.grid = element_blank(),
+                     panel.background = element_rect(fill = "#F8F8F8"))
   
   getData <- reactive({
     inFile <- input$file
@@ -69,10 +73,12 @@ shinyServer(function(input, output) {
     longData <- getData()
     limits <- getLimits()
     
-    p2 <- ggplot(longData, aes(size, proportion)) + geom_line(aes(group = sample))
+    p2 <- ggplot(longData, aes(size, proportion)) + geom_line(aes(group = sample)) + ylab("Proportion (%)") +
+      xlab("Granule size")
     
     if (input$logOption) {
-      p2 <- p2 + scale_x_log10()
+      p2 <- p2 + scale_x_log10(labels = comma) + 
+        annotation_logticks(sides = "b")
     }
     
     if(!is.null(input$peak1) & !is.na(input$peakNumber)) {
@@ -84,7 +90,7 @@ shinyServer(function(input, output) {
         }
       }
     }
-    return(p2)
+    return(p2 + plotTheme)
   })
   
   output$temp <- renderText(input$peakNumber)
