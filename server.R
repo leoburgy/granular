@@ -22,6 +22,35 @@ shinyServer(function(input, output) {
     return(longData)
   })
   
+  getVals <- reactive({
+    if (is.null(input$peak1))
+      return(NULL)
+    
+    if (!is.null(input$peak1)) {
+      n <- input$peakNumber
+      
+      vals <- sapply(1:n, function(i) {
+        as.numeric(input[[paste0("peak", i)]])[1]
+      })
+    
+      labels <- sapply(1:n, function(i) {
+        as.character(input[[paste0("peakid", i)]])[1]
+      })
+      offset <- log((xmax - xmin)/20)
+      
+      peakDat <- data.frame(x = vals, peak = 1:n)
+      if (any(!is.na(labels)))
+        peakDat$label <- labels
+      else peakDat$label <- ""
+      peakDat$xoff <- with(peakDat, x - x * offset)
+      peakDat$ylabel <- with(peakDat, ymax / 1.2)
+      ## This is for the ggvis implementation
+      #       peakDat <- data.frame(x = rep(vals, 2), 
+      #                             y = rep(c(0, ymax), each = n), 
+      #                             peak = rep(1:n, 2))
+      
+  })
+  
   getLimits <- reactive({
     dat <- getData()
     if (is.null(dat))
@@ -40,12 +69,14 @@ shinyServer(function(input, output) {
     if (is.null(input$logOption))
       return(NULL)
     
+    p2 <- ggplot(longData, aes(size, proportion)) + geom_line(aes(group = sample))
+    
     if (!input$logOption) {
       #       p2 <- longData %>%
       #       group_by(sample) %>%
       #       ggvis(~size, ~proportion) %>%
       #       layer_lines(opacity := input_slider(0, 1, value = 1))
-      p2 <- ggplot(longData, aes(size, proportion)) + geom_line(aes(group = sample))
+      
     }
     
     if (input$logOption) {
@@ -54,31 +85,9 @@ shinyServer(function(input, output) {
       #       ggvis(~size, ~proportion) %>%
       #       layer_paths(opacity := input_slider(0, 1, value = 1, label = "Change transparency")) %>%
       #       scale_numeric("x", trans = "log", expand = 0, nice = FALSE)
-      p2 <- ggplot(longData, aes(size, proportion)) + geom_line(aes(group = sample)) +
-        scale_x_log10()
+      p2 <- p2 + scale_x_log10()
     }
     
-    if (!is.null(input$peak1)) {
-      n <- input$peakNumber
-      
-      vals <- sapply(1:n, function(i) {
-        as.numeric(input[[paste0("peak", i)]])[1]
-      })
-      labels <- sapply(1:n, function(i) {
-        as.character(input[[paste0("peakid", i)]])[1]
-      })
-      offset <- log((xmax - xmin)/20)
-      
-      peakDat <- data.frame(x = vals, peak = 1:n)
-      if (any(!is.na(labels)))
-        peakDat$label <- labels
-      else peakDat$label <- ""
-      peakDat$xoff <- with(peakDat, x - x * offset)
-      peakDat$ylabel <- with(peakDat, ymax / 1.2)
-      ## This is for the ggvis implementation
-      #       peakDat <- data.frame(x = rep(vals, 2), 
-      #                             y = rep(c(0, ymax), each = n), 
-      #                             peak = rep(1:n, 2))
       p2 <- p2 + geom_vline(data = peakDat, aes(x = x), colour = "red") +
       geom_text(data = peakDat, aes(x = xoff, y = ylabel, label = label))
       
