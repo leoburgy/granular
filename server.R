@@ -42,6 +42,20 @@ shinyServer(function(input, output, session) {
     return(list(xmin = xmin, xmax = xmax))
   })
   
+  getPeakMu <- reactive({
+    if(!exists("input$peak1"))
+      return(NULL)
+    vals <- sapply(1:n, function(i) {
+      as.numeric(input[[paste0("peak", i)]])[1]
+    })
+    cat("getPM #1")
+    labels <- sapply(1:n, function(i) {
+      cat("getPM #2\n")
+      as.character(input[[paste0("peakid", i)]])[1]
+    })
+    return(list(vals = vals, labels = labels))
+  })
+  
   getVals <- reactive({
     cat("getVals is starting\n")
     longData <- getData()
@@ -60,28 +74,28 @@ shinyServer(function(input, output, session) {
         return(NULL)
       }
       
-      if (exists("input$peak1")) {
+      if (input$peakNumber > 0) {
         cat("getVals #3\n")
-      vals <- sapply(1:n, function(i) {
-        as.numeric(input[[paste0("peak", i)]])[1]
-      })
-      cat("getVals #4")
-      labels <- sapply(1:n, function(i) {
-        cat("getVals #5\n")
-        as.character(input[[paste0("peakid", i)]])[1]
-      })
-      cat("getVals#5\n")
-      offset <- log((limits$xmax - limits$xmin)/20)
-      
-      peakDat <- data.frame(x = vals, peak = 1:n)
-      peakDat$label <- NA
-      if (any(!is.na(labels)))
-        peakDat$label <- labels
-      peakDat$xoff <- with(peakDat, x - x * offset)
-      peakDat$ylabel <- ymax / 1.2
-      cat("getVals just ran and peakDat$x = ", peakDat$x, "\n")
-      return(peakDat)
-    }}
+        vals <- sapply(1:n, function(i) {
+          as.numeric(input[[paste0("peak", i)]])[1]
+        })
+        cat("getVals #4")
+        labels <- sapply(1:n, function(i) {
+          cat("getVals #5\n")
+          as.character(input[[paste0("peakid", i)]])[1]
+        })
+        cat("getVals#5\n")
+        offset <- log((limits$xmax - limits$xmin)/20)
+        
+        peakDat <- data.frame(x = vals, peak = 1:n)
+        peakDat$label <- NA
+        if (any(!is.na(labels)))
+          peakDat$label <- labels
+        peakDat$xoff <- with(peakDat, x - x * offset)
+        peakDat$ylabel <- ymax / 1.2
+        cat("getVals just ran and peakDat$x = ", peakDat$x, "\n")
+        return(peakDat)
+      }}
   })
   
   output$ggplot <- renderPlot({
@@ -101,16 +115,16 @@ shinyServer(function(input, output, session) {
         annotation_logticks(sides = "b")
     }
     
-#     if(!is.null(input$peak1) & !is.na(input$peakNumber)) {
-#       cat("as part of plot running, peakNumber is ", input$peakNumber, "\n")
-#       if(input$peak1 > 0) {
-#         peakDat <- getVals()
-#         p2 <- p2 + geom_vline(data = peakDat, aes(xintercept = x), colour = "red") 
-#         if(any(!is.na(peakDat$label))) {
-#           p2 <- p2 + geom_text(data = peakDat, aes(x = x, y = ylabel, label = label))
-#         }
-#       }
-#     }
+    if(!is.null(input$peak1)) {
+      cat("as part of plot running, peakNumber is ", input$peakNumber, "\n")
+      if(input$peak1 > 0) {
+        peakDat <- getVals()
+        p2 <- p2 + geom_vline(data = peakDat, aes(xintercept = x), colour = "red") 
+        if(any(!is.na(peakDat$label))) {
+          p2 <- p2 + geom_text(data = peakDat, aes(x = x, y = ylabel, label = label))
+        }
+      }
+    }
     cat("plot just ran\n")
     return(p2 + plotTheme)
   })
@@ -141,14 +155,14 @@ shinyServer(function(input, output, session) {
   output$peakmu <- renderUI({
     if (is.null(input$peakNumber))
       return(NULL)
-#     if (is.null(getVals()))
-#       return(NULL)
+    #     if (is.null(getVals()))
+    #       return(NULL)
     
     if (!is.na(input$peakNumber) & input$peakNumber > 0){
       if (!input$peakNumber > 0) {
         return(NULL)
       }
-      vals <- isolate(getVals())
+      vals <- getPeakMu()
       n <- input$peakNumber
       xmin <- input$minSize
       xmax <- input$maxSize
@@ -160,16 +174,18 @@ shinyServer(function(input, output, session) {
                                      tags$div(class = 'row half-gutter',
                                               tags$div(class = 'col-sm-3', textInput(inputId = paste0("peakid", i), 
                                                                                      label = "Peak ID", 
-                                                                                     value = ifelse(is.na(vals$label[i]),
-                                                                                                    i,
-                                                                                                    vals$label[i]))),
+                                                                                     value = ifelse(!is.null(vals$labels), ifelse(is.na(vals$labels[i]),
+                                                                                                                                 i,
+                                                                                                                                 vals$labels[i]),
+                                                                                                    NA))),
                                               tags$div(class = 'col-sm-9', sliderInput(inputId = paste0("peak", i), 
                                                                                        label = HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
                                                                                        min = ifelse(xmin == 0, 1e-6, xmin), 
                                                                                        max = xmax, 
-                                                                                       value = ifelse(is.na(vals$x[i]),
-                                                                                                      ifelse(xmin == 0, 0.1, xmin),
-                                                                                                      ifelse(vals$x[i] < xmax, vals$x[i], xmax)),
+                                                                                       value = ifelse(!is.null(vals$vals), ifelse(is.na(vals$vals[i]),
+                                                                                                                                   ifelse(xmin == 0, 0.1, xmin),
+                                                                                                                                   ifelse(vals$vals[i] < xmax, vals$x[i], xmax)),
+                                                                                                      NA),
                                                                                        step = 0.1, 
                                                                                        round = FALSE,
                                                                                        width = '100%'))
@@ -179,7 +195,7 @@ shinyServer(function(input, output, session) {
       uiout <- tags$form(class = 'col-sm-12', uilist)
       cat("peakmu just ran\n")
       
-        return(uiout)
+      return(uiout)
       
     }
   })  
