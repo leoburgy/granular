@@ -43,27 +43,34 @@ shinyServer(function(input, output, session) {
   })
   
   getVals <- reactive({
+    cat("getVals is starting\n")
     longData <- getData()
     limits <- getLimits()
     n <- input$peakNumber
-    
+    cat("getVals #1\n")
     ymax <- max(longData$proportion, na.rm = TRUE) * 1.2
     
     if (is.na(input$peakNumber))
       return(NULL)
     
+    cat("getVals #2\n")
     if (!is.na(input$peakNumber) & input$peakNumber > 0){
+      cat("getVals #2.5\n")
       if (!input$peakNumber > 0) {
         return(NULL)
       }
       
+      if (exists("input$peak1")) {
+        cat("getVals #3\n")
       vals <- sapply(1:n, function(i) {
         as.numeric(input[[paste0("peak", i)]])[1]
       })
-      
+      cat("getVals #4")
       labels <- sapply(1:n, function(i) {
+        cat("getVals #5\n")
         as.character(input[[paste0("peakid", i)]])[1]
       })
+      cat("getVals#5\n")
       offset <- log((limits$xmax - limits$xmin)/20)
       
       peakDat <- data.frame(x = vals, peak = 1:n)
@@ -74,7 +81,7 @@ shinyServer(function(input, output, session) {
       peakDat$ylabel <- ymax / 1.2
       cat("getVals just ran and peakDat$x = ", peakDat$x, "\n")
       return(peakDat)
-    }
+    }}
   })
   
   output$ggplot <- renderPlot({
@@ -134,14 +141,14 @@ shinyServer(function(input, output, session) {
   output$peakmu <- renderUI({
     if (is.null(input$peakNumber))
       return(NULL)
-    if (is.null(getVals()))
-      return(NULL)
+#     if (is.null(getVals()))
+#       return(NULL)
     
     if (!is.na(input$peakNumber) & input$peakNumber > 0){
       if (!input$peakNumber > 0) {
         return(NULL)
       }
-      isolate(vals <- getVals())
+      vals <- isolate(getVals())
       n <- input$peakNumber
       xmin <- input$minSize
       xmax <- input$maxSize
