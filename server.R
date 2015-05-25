@@ -71,11 +71,14 @@ shinyServer(function(input, output) {
     longData <- getData()
     limits <- getLimits()
     
+    
     p2 <- ggplot(longData, aes(size, proportion)) + geom_line(aes(group = sample)) + ylab("Proportion (%)") +
       xlab("Granule size")
     
     if (input$logOption) {
-      p2 <- p2 + scale_x_log10(labels = comma) + 
+      p2 <- p2 + scale_x_continuous(trans = 'log10',
+                                    breaks = trans_breaks('log10', function(x) 10^x),
+                                    labels = comma_format(digits = 0)) + 
         annotation_logticks(sides = "b")
     }
     
