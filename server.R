@@ -115,43 +115,53 @@ shinyServer(function(input, output) {
     return(uiout)
   })
   
-    output$peakmu <- renderUI({
-#       Would like to make the slider inputs on a log scale
-#       The code here (https://groups.google.com/forum/#!searchin/shiny-discuss/slider%7Csort:date/shiny-discuss/AeAzR4p2h1g/8vWpRDgqnTUJ)
-#       would probably help, but I can't get it to work atm      
-      if (is.null(input$peakNumber)) {
-        return(NULL)
+  output$peakmu <- renderUI({
+    #       Would like to make the slider inputs on a log scale
+    #       The code here (https://groups.google.com/forum/#!searchin/shiny-discuss/slider%7Csort:date/shiny-discuss/AeAzR4p2h1g/8vWpRDgqnTUJ)
+    #       would probably help, but I can't get it to work atm      
+    if (is.null(input$peakNumber)) {
+      return(NULL)
+    }
+    
+    if (!is.na(input$peakNumber) & input$peakNumber > 0){
+      n <- input$peakNumber
+      xmin <- input$minSize
+      xmax <- input$maxSize
+      xseq <- seq(xmin, xmax, by = (xmax - xmin) / (n + 2))
+      xseq <- xseq[2:(n + 1)]
+      uilist <- vector(mode = "list", n)
+      for(i in seq_len(n)) {
+        mu <- isolate(ifelse(is.null(input[[paste0('peak', i)]]), 
+                             ifelse(xmin == 0, 0.1, xmin),
+                             ifelse(as.numeric(input[[paste0('peak', i)]])[1] > xmax, 
+                                    xmax,
+                                    as.numeric(input[[paste0('peak', i)]])[1])))
+        uilist[[i]] <- list(tags$div(class = 'row-fluid',
+                                     tags$div(class = 'row half-gutter',
+                                              tags$div(class = 'col-sm-3', textInput(paste0("peakid", i), "Peak ID", i)),
+                                              tags$div(class = 'col-sm-9', sliderInput(inputId = paste0("peak", i), 
+                                                                                       label = HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
+                                                                                       min = ifelse(xmin == 0, 1e-6, xmin), 
+                                                                                       max = xmax, 
+                                                                                       value = mu,
+                                                                                       step = 0.1, 
+                                                                                       round = FALSE,
+                                                                                       width = '100%'))
+                                     )
+        ))
       }
-      
-      if (!is.na(input$peakNumber) & input$peakNumber > 0){
-        n <- input$peakNumber
-        xmin <- input$minSize
-        xmax <- input$maxSize
-        xseq <- seq(xmin, xmax, by = (xmax - xmin) / (n + 2))
-        xseq <- xseq[2:(n + 1)]
-        uilist <- vector(mode = "list", n)
-        for(i in seq_len(n)) {
-          mu <- isolate(ifelse(is.null(input[[paste0('peak', i)]]), 
-                               ifelse(xmin == 0, 0.1, xmin),
-                               ifelse(as.numeric(input[[paste0('peak', i)]])[1] > xmax, 
-                                      xmax,
-                                      as.numeric(input[[paste0('peak', i)]])[1])))
-          uilist[[i]] <- list(tags$div(class = 'row-fluid',
-                                       tags$div(class = 'row half-gutter',
-                                                tags$div(class = 'col-sm-3', textInput(paste0("peakid", i), "Peak ID", i)),
-                                                tags$div(class = 'col-sm-9', sliderInput(inputId = paste0("peak", i), 
-                                                                                         label = HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
-                                                                                         min = ifelse(xmin == 0, 1e-6, xmin), 
-                                                                                         max = xmax, 
-                                                                                         value = mu,
-                                                                                         step = 0.1, 
-                                                                                         round = FALSE,
-                                                                                         width = '100%'))
-                                       )
-          ))
-        }
-        uiout <- tags$form(class = 'col-sm-12', uilist)
-        return(uiout)
-      }
-    })  
+      uiout <- tags$form(class = 'col-sm-12', uilist)
+      return(uiout)
+    }
+  })
+  
+  
+  outputData <- eventReactive(input$goButton, {
+    longData <- getData()
+    return(longData)
+  })
+  
+  output$longDataTable <- renderDataTable({
+    outputData()
+  })
 })

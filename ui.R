@@ -13,12 +13,13 @@ shinyUI(fluidPage(
   tags$div(class = 'col-sm-4',
            tags$form(class = 'well',
                      tags$div(class = 'row-fluid',
-                     fileInput('file', 'Choose CSV file', accept=c('text/csv', 
-                                                                   'text/comma-separated-values,text/plain', 
-                                                                   '.csv'))),
+                              fileInput('file', 'Choose CSV file', accept=c('text/csv', 
+                                                                            'text/comma-separated-values,text/plain', 
+                                                                            '.csv'))),
                      uiOutput("starchPar"),
                      uiOutput("peakmu"))
   ),
+  actionButton("goButton", "Go!"),
   
   mainPanel(
     
@@ -30,9 +31,13 @@ shinyUI(fluidPage(
         "Initial inspection",
         plotOutput('ggplot')
         #ggvisOutput("p2")
-#         ,
-#         uiOutput("p_ui")
-      )
+        #         ,
+        #         uiOutput("p_ui")
+      ),
+      tabPanel(
+        "Selected Data",
+        shiny::dataTableOutput("longDataTable")
+        )
     )
   )
 ))
