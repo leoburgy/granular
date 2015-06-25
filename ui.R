@@ -4,7 +4,17 @@ library(ggvis)
 shinyUI(fluidPage(
   
   tags$head(
-    tags$link(rel = 'stylesheet', type = 'text/css', href = 'custom.css')),
+    tags$link(rel = 'stylesheet', type = 'text/css', href = 'custom.css'),
+    tags$script('Shiny.addCustomMessageHandler("myCallbackHandler",
+                  function(typeMessage) {console.log(typeMessage)
+                    if(typeMessage == 1){
+                          console.log("got here");
+                          $("a:contains(Selected Data)").click();
+                          }
+                    if(typeMessage == 2){
+                          $("a:contains(Selected Data)").click();
+                          }
+                          });')),
   
   # Application title
   titlePanel("Starch Granule Mixture Classification"),
@@ -37,7 +47,7 @@ shinyUI(fluidPage(
       tabPanel(
         "Selected Data",
         shiny::dataTableOutput("longDataTable")
-        )
+      )
     )
   )
 ))

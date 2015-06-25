@@ -5,8 +5,21 @@ library(ggplot2)
 library(ggvis)
 library(scales)
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
   
+  observe({
+    if(input$goButton > 0){
+      print('1')
+      session$sendCustomMessage("myCallbackHandler", "1")
+    }
+  })
+#   observe({
+#     if(input$action1 > 0){
+#       print('2')
+#       session$sendCustomMessage("myCallbackHandler", "2")
+#     }
+#   })
+#   
   plotTheme <- theme(panel.grid = element_blank(),
                      panel.background = element_rect(fill = "#F8F8F8"))
   
@@ -158,7 +171,9 @@ shinyServer(function(input, output) {
   
   outputData <- eventReactive(input$goButton, {
     longData <- getData()
-    return(longData)
+    if(!is.null(getData()))
+      return(longData)
+    
   })
   
   output$longDataTable <- renderDataTable({
