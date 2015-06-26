@@ -30,25 +30,53 @@ shinyServer(function(input, output, session) {
     if (is.null(input$logOption))
       return(NULL)
     
+    
     wideData <- read.csv(inFile$datapath)
     longData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = sub("X", "", size))
     longData$size <- as.numeric(longData$size)
-    longData <- filter(longData, size > input$minSize,
-                       size < input$maxSize)
+    
+#     longData <- filter(longData, size > input$minSize,
+#                        size < input$maxSize)
     return(longData)
   })
   
   getLimits <- reactive({
     if (is.null(getData()))
       return(NULL)
-    xmin <- input$minSize
-    xmax <- input$maxSize
-    return(list(xmin = xmin, xmax = xmax))
+    
+    longData <- getData()
+    limits <- longData %>% 
+      group_by(size) %>%
+      summarise(measured = any(proportion > 0, na.rm = TRUE)) %>%
+      mutate(first = !duplicated(measured), last = rev(!duplicated(rev(measured))))
+    
+    min <- limits %>% filter(measured, first) %>%
+      select(size)
+    min <- min$size
+    max <- limits %>% filter(measured, last)
+    max <- max$size
+    
+    if(!is.na(input$minSize))
+      min <- input$minSize
+    if(!is.na(input$maxSize))
+      max <- input$maxSize
+    return(list(xmin = min, xmax = max))
   })
   
-  getVals <- reactive({
+  filteredData <- reactive({
+    if (is.null(getData()))
+      return(NULL)
     longData <- getData()
+    limits <- getLimits()
+    longData <- longData %>%
+      filter(size >= limits[[1]], size <= limits[[2]])
+    })
+  
+  
+  
+  getVals <- reactive({
+    longData <- filteredData()
     limits <- getLimits()
     n <- input$peakNumber
     
@@ -66,7 +94,7 @@ shinyServer(function(input, output, session) {
       labels <- sapply(1:n, function(i) {
         as.character(input[[paste0("peakid", i)]])[1]
       })
-      offset <- log((limits$xmax - limits$xmin)/20)
+      offset <- log((limits[[2]] - limits[[1]])/20)
       
       peakDat <- data.frame(x = vals, peak = 1:n)
       peakDat$label <- ""
@@ -81,7 +109,7 @@ shinyServer(function(input, output, session) {
   output$ggplot <- renderPlot({
     if(is.null(getData()))
       return(NULL)
-    longData <- getData()
+    longData <- filteredData()
     limits <- getLimits()
     
     
@@ -110,13 +138,14 @@ shinyServer(function(input, output, session) {
   output$starchPar <- renderUI({
     if (is.null(input$file))
       return(NULL)
+    limits <- getLimits()
     uiout <- tags$div(class = 'row-fluid',
                       tags$div(class = 'row half-gutter',
                                tags$div(class = 'col-sm-6', 
-                                        numericInput('minSize', HTML(paste0('Set the minimum granule size (', '&mu;', 'm)')), 0)
+                                        numericInput('minSize', HTML(paste0('Set the minimum granule size (', '&mu;', 'm)')), limits[[1]])
                                ),
                                tags$div(class = 'col-sm-6',
-                                        numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), 1000)
+                                        numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), limits[[2]])
                                )),
                       tags$div(class = 'row half-gutter',
                                tags$div(class = 'col-sm-6', 
@@ -175,7 +204,7 @@ shinyServer(function(input, output, session) {
       return(longData)
     
   })
-  
+
   output$longDataTable <- renderDataTable({
     outputData()
   })
