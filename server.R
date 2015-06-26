@@ -35,6 +35,13 @@ shinyServer(function(input, output, session) {
     longData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = sub("X", "", size))
     longData$size <- as.numeric(longData$size)
+    if(!is.na(input$spuriousPeak))
+      {sizes <- unique(longData$size)
+      nearest <- sizes[which.min(abs(sizes - input$spuriousPeak))]
+      goodSamples <- longData$sample[longData$size == nearest & longData$proportion == 0]
+      longData <- longData %>%
+        filter(sample %in% goodSamples)
+    }
     
 #     longData <- filter(longData, size > input$minSize,
 #                        size < input$maxSize)
@@ -147,6 +154,9 @@ shinyServer(function(input, output, session) {
                                tags$div(class = 'col-sm-6',
                                         numericInput('maxSize', HTML(paste0('Set the maximum granule size (', '&mu;', 'm)')), limits[[2]])
                                )),
+                      tags$div(class = 'row half-gutter',
+                               tags$div(class = 'col-sm-12',
+                                        numericInput('spuriousPeak', 'Spurious peak size', NA))),
                       tags$div(class = 'row half-gutter',
                                tags$div(class = 'col-sm-6', 
                                         numericInput('peakNumber', 'Number of peaks', min = 2, value = NULL)
