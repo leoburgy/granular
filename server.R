@@ -35,12 +35,12 @@ shinyServer(function(input, output, session) {
     longData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = sub("X", "", size))
     longData$size <- as.numeric(longData$size)
-    if(!is.na(input$spuriousPeak))
-      {sizes <- unique(longData$size)
+    if(!is.na(input$spuriousPeak)) {
+      sizes <- unique(longData$size)
       nearest <- sizes[which.min(abs(sizes - input$spuriousPeak))]
       goodSamples <- longData$sample[longData$size == nearest & longData$proportion == 0]
       longData <- longData %>%
-        filter(sample %in% goodSamples)
+        filter(sample %in% goodSamples, size) 
     }
     
 #     longData <- filter(longData, size > input$minSize,
@@ -51,7 +51,6 @@ shinyServer(function(input, output, session) {
   getLimits <- reactive({
     if (is.null(getData()))
       return(NULL)
-    
     longData <- getData()
     limits <- longData %>% 
       group_by(size) %>%
@@ -64,16 +63,25 @@ shinyServer(function(input, output, session) {
     max <- limits %>% filter(measured, last)
     max <- max$size
     
-    if(!is.na(input$minSize))
-      min <- input$minSize
-    if(!is.na(input$maxSize))
-      max <- input$maxSize
+#     if(!is.na(input$minSize))
+#       min <- input$minSize
+#     if(!is.na(input$maxSize))
+#       max <- input$maxSize
     return(list(xmin = min, xmax = max))
+  })
+  
+  getSpurious <- reactive({
+    if(is.null(input$spuriousPeak))
+      return(NULL)
+    if(is.na(input$spuriousPeak))
+      return(NA)
+    return(input$spuriousPeak)
   })
   
   filteredData <- reactive({
     if (is.null(getData()))
       return(NULL)
+    getSpurious()
     longData <- getData()
     limits <- getLimits()
     longData <- longData %>%
@@ -146,6 +154,7 @@ shinyServer(function(input, output, session) {
     if (is.null(input$file))
       return(NULL)
     limits <- getLimits()
+    spurious <- getSpurious()
     uiout <- tags$div(class = 'row-fluid',
                       tags$div(class = 'row half-gutter',
                                tags$div(class = 'col-sm-6', 
@@ -156,7 +165,7 @@ shinyServer(function(input, output, session) {
                                )),
                       tags$div(class = 'row half-gutter',
                                tags$div(class = 'col-sm-12',
-                                        numericInput('spuriousPeak', 'Spurious peak size', NA))),
+                                        numericInput('spuriousPeak', 'Spurious peak size', spurious))),
                       tags$div(class = 'row half-gutter',
                                tags$div(class = 'col-sm-6', 
                                         numericInput('peakNumber', 'Number of peaks', min = 2, value = NULL)
@@ -214,7 +223,7 @@ shinyServer(function(input, output, session) {
       return(longData)
     
   })
-
+  output$temp <- renderText(paste(input$spuriousPeak, paste(getLimits())))
   output$longDataTable <- renderDataTable({
     outputData()
   })
