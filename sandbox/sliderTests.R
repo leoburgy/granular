@@ -16,8 +16,7 @@ runApp(shinyApp(
   ui = fluidPage(
     useShinyjs(),
     extendShinyjs(text = jsCode),
-    sliderInput("test1", "test1:", 0, 1, 0),
-    checkboxInput("log", "log?"), 
+    sliderInput("test1", "test1:", 0, 1, 0), 
     fileInput('file', "file"),
     actionButton("btn", "Go"),
     sliderInput("test2", "test2:", 0, 1, 0),
@@ -28,10 +27,8 @@ runApp(shinyApp(
       inFile <- input$file
       if (is.null(inFile))
         return(NULL)
-     
       dat <- read.csv(inFile$datapath)
       vals <- as.numeric(gsub("X", "", colnames(dat)[2:ncol(dat)]))
-      if(input$log) return(log(vals))
       return(vals)
     })
     
@@ -39,9 +36,7 @@ runApp(shinyApp(
     
     observeEvent(input$btn, {
       vals <- getData()
-      vals <- vals[5:75]
-      if(input$log) vals <- log(vals)
-      vals <- round(vals, 1)
+      vals <- round(vals, 2)
       
       
       js$slideVals("test1", vals)
