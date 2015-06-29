@@ -17,15 +17,33 @@ runApp(shinyApp(
     useShinyjs(),
     extendShinyjs(text = jsCode),
     sliderInput("test1", "test1:", 0, 1, 0),
-    numericInput("min", "Min", NULL),
-    numericInput("max", "Max", NULL),
-    numericInput("length", "Length", NULL),
+    checkboxInput("log", "log?"), 
+    fileInput('file', "file"),
     actionButton("btn", "Go"),
-    sliderInput("test2", "test2:", 0, 1, 0)
+    sliderInput("test2", "test2:", 0, 1, 0),
+    dataTableOutput('temp')
   ),
   server = function(input,output,session) {
+    getData <- reactive({
+      inFile <- input$file
+      if (is.null(inFile))
+        return(NULL)
+     
+      dat <- read.csv(inFile$datapath)
+      vals <- as.numeric(gsub("X", "", colnames(dat)[2:ncol(dat)]))
+      if(input$log) return(log(vals))
+      return(vals)
+    })
+    
+    output$temp <- renderDataTable(getData())
+    
     observeEvent(input$btn, {
-      vals <- seq(from = input$min, to = input$max, length.out = input$length)
+      vals <- getData()
+      vals <- vals[5:75]
+      if(input$log) vals <- log(vals)
+      vals <- round(vals, 1)
+      
+      
       js$slideVals("test1", vals)
     })
   }
