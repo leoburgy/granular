@@ -4,7 +4,7 @@ library(dplyr)
 library(ggplot2)
 library(ggvis)
 library(scales)
-library('global.R')
+source('global.R')
 
 shinyServer(function(input, output, session) {
   
