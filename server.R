@@ -228,7 +228,7 @@ shinyServer(function(input, output, session) {
   
   getFitData <- reactive({
     wideData <- getWideData()
-    if(!is.null(getWdieData())) {
+    if(!is.null(getWideData())) {
       ps <- wideData[, 1]
       Dist <- ps.df[, 2:ncol(wideData)]
       eg.out <- mixDist(ps, Dist)
