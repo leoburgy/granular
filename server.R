@@ -221,15 +221,26 @@ shinyServer(function(input, output, session) {
     longData <- getData()
     if(!is.null(getData())) {
       wideData <- longData %>% 
-        spread(sample, proportion) 
+        spread(sample, proportion) %>% 
+        setNames(c("particle_size", paste0("freq", 1:(ncol(.) - 1))))
+    }
+  })
+  
+  getFitData <- reactive({
+    wideData <- getWideData()
+    if(!is.null(getWdieData())) {
+      ps <- wideData[, 1]
+      Dist <- ps.df[, 2:ncol(wideData)]
+      eg.out <- mixDist(ps, Dist)
+      eg.out
     }
   })
   
   outputData <- eventReactive(input$goButton, {
-    wideData <- getWideData()
-    if(!is.null(getWideData())) {
-      cat(str(wideData))
-      return(wideData)
+    fitData <- getFitData()
+    if(!is.null(getFitData())) {
+      cat(str(fitData))
+      return(fitData)
     }
   })
   
