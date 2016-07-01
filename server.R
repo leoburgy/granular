@@ -217,15 +217,26 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  getWideData <- reactive({
+    longData <- getData()
+    if(!is.null(getData())) {
+      wideData <- longData %>% 
+        spread(sample, proportion) 
+    }
+  })
   
   outputData <- eventReactive(input$goButton, {
-    longData <- getData()
-    if(!is.null(getData()))
-      return(longData)
-    
+    wideData <- getWideData()
+    if(!is.null(getWideData())) {
+      cat(str(wideData))
+      return(wideData)
+    }
   })
+  
   output$temp <- renderText(paste(input$spuriousPeak, paste(getLimits())))
   output$longDataTable <- renderDataTable({
     outputData()
   })
+  
+  
 })
