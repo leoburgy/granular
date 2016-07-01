@@ -230,7 +230,7 @@ shinyServer(function(input, output, session) {
     wideData <- getWideData()
     if(!is.null(getWideData())) {
       ps <- wideData[, 1]
-      Dist <- ps.df[, 2:ncol(wideData)]
+      Dist <- wideData[, 2:ncol(wideData)]
       eg.out <- mixDist(ps, Dist)
       eg.out
     }

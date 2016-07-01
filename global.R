@@ -39,7 +39,6 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
   returnFit <- NULL
   for (iline in 1:nline) {
     rfreq <- Dist[[iline]]
-    browser()
     index_start <- min(which(rfreq!=0)) # to remove trailing and leading 0 entries.
     index_end <- max(which(rfreq!=0))
     dat <- data.frame("log_size"=log_ps[index_start:index_end],
