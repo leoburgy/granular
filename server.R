@@ -118,6 +118,7 @@ shinyServer(function(input, output, session) {
         peakDat$label <- labels
       peakDat$xoff <- with(peakDat, x - x * offset)
       peakDat$ylabel <- ymax / 1.2
+      cat(str(peakDat))
       return(peakDat)
     }
   })
@@ -198,19 +199,42 @@ shinyServer(function(input, output, session) {
                              ifelse(as.numeric(input[[paste0('peak', i)]])[1] > xmax, 
                                     xmax,
                                     as.numeric(input[[paste0('peak', i)]])[1])))
+        label <- ifelse(is.null(input[[paste0('peakid', i)]]), 
+                                i, input[[paste0('peakid', i)]])
+        cat("label is ", label, "\n")
         uilist[[i]] <- list(tags$div(class = 'row-fluid',
                                      tags$div(class = 'row half-gutter',
                                               tags$div(class = 'col-sm-3', textInput(paste0("peakid", i), "Peak ID", i)),
-                                              tags$div(class = 'col-sm-9', sliderInput(inputId = paste0("peak", i), 
-                                                                                       label = HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
-                                                                                       min = ifelse(xmin == 0, 1e-6, xmin), 
-                                                                                       max = xmax, 
-                                                                                       value = mu,
-                                                                                       step = 0.1, 
-                                                                                       round = FALSE,
-                                                                                       width = '100%'))
+                                              tags$div(class = 'col-sm-9', 
+                                                       tags$div(class = 'row half-gutter',
+                                                                sliderInput(inputId = paste0("peak", i),
+                                                                            label = HTML(paste0("Estimated mean for peak ", i, " (", "&mu;", "m)")), #  "\\((\\mu m\\))")), 
+                                                                            min = ifelse(xmin == 0, 1e-6, xmin), 
+                                                                            max = xmax, 
+                                                                            value = mu,
+                                                                            step = 0.1, 
+                                                                            round = FALSE,
+                                                                            width = '100%')),
+                                                       tags$div(class = 'row half-gutter',
+                                                                sliderInput(inputId = paste0("sd", i),
+                                                                            label = HTML(paste0("Estimated sd for peak ", i)),
+                                                                            min = 0,
+                                                                            max = 5,
+                                                                            value = 1,
+                                                                            step = 0.1,
+                                                                            round = FALSE, 
+                                                                            width = '100%')),
+                                                       tags$div(class = 'row half-gutter',
+                                                                sliderInput(inputId = paste0("pi", i),
+                                                                            label = HTML(paste0("Estimated proportion for peak ", label)),
+                                                                            min = 0,
+                                                                            max = 5,
+                                                                            value = 1,
+                                                                            step = 0.1,
+                                                                            round = FALSE, 
+                                                                            width = '100%'))
                                      )
-        ))
+        )))
       }
       uiout <- tags$form(class = 'col-sm-12', uilist)
       return(uiout)

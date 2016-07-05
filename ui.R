@@ -46,7 +46,7 @@ shinyUI(fluidPage(
         #         uiOutput("p_ui")
       ),
       tabPanel(
-        "Selected Data",
+        "Output Data",
         shiny::dataTableOutput("longDataTable")
       )
     )
