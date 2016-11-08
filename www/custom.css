@@ -6,3 +6,49 @@
   padding-right: (@gutter / 2);
   padding-left: (@gutter / 2);
 }
+
+// added for plots
+.x.axis path {
+    fill: none;
+    /*stroke: white;*/
+    stroke-width: 1px;
+    opacity: 0.8;
+  }
+/*
+text { 
+  color: white;
+  stroke: white;
+  fill: white;
+  }*/
+
+  .hover-line { 
+    stroke: black;  
+    fill: none;
+    stroke-width: 1px;
+  }
+
+  .inlet {
+    stroke: red;
+    color: red;
+    stroke-width: 2px;
+    opacity: 0.8;
+    fill: none;
+  }
+
+  .discharge {
+    stroke: steelblue;
+    color: steelblue;
+    stroke-width: 2px;
+    opacity: 0.8;
+    fill: none;
+  }
+
+  .axis--x path {
+    display: none;
+  }
+
+  .line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+  }
