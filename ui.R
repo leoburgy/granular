@@ -2,6 +2,10 @@ library(shiny)
 library(ggvis)
 source('global.R')
 
+mastersizer_vis <- function(outputId) {
+  HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"><svg /></div>", sep=""))
+}
+
 shinyUI(fluidPage(
   
   tags$head(
@@ -26,9 +30,10 @@ shinyUI(fluidPage(
                      tags$div(class = 'row-fluid',
                               fileInput('file', 'Choose CSV file', accept=c('text/csv', 
                                                                             'text/comma-separated-values,text/plain', 
-                                                                            '.csv'))),
-                     uiOutput("starchPar"),
-                     uiOutput("peakmu"))
+                                                                            '.csv')))
+                     # uiOutput("starchPar"),
+                     # uiOutput("peakmu")
+                     )
   ),
   actionButton("goButton", "Go!"),
   
@@ -40,7 +45,8 @@ shinyUI(fluidPage(
       #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
       tabPanel(
         "Initial inspection",
-        plotOutput('ggplot')
+        includeHTML("www/index.html"),
+        mastersizer_vis("mastersizer")
         #ggvisOutput("p2")
         #         ,
         #         uiOutput("p_ui")
