@@ -3,12 +3,13 @@ library(ggvis)
 source('global.R')
 
 mastersizer_vis <- function(outputId) {
-  HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"><svg /></div>", sep=""))
+  HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"><svg width=500 height=500> </svg></div>", sep=""))
 }
 
 shinyUI(fluidPage(
   
   tags$head(
+    tags$script(src="//d3js.org/d3.v4.js"),
     tags$link(rel = 'stylesheet', type = 'text/css', href = 'custom.css'),
     tags$script('Shiny.addCustomMessageHandler("myCallbackHandler",
                   function(typeMessage) {console.log(typeMessage)
