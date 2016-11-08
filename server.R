@@ -29,13 +29,13 @@ shinyServer(function(input, output, session) {
     inFile <- input$file
     if (is.null(inFile))
       return(NULL)
-    if (is.null(input$logOption))
-      return(NULL)
-    
+    # if (is.null(input$logOption))
+    #   return(NULL)
     
     wideData <- read.csv(inFile$datapath)
-    longData <- gather(wideData, size, proportion, -sample) %>%
-      mutate(size = sub("X", "", size))
+    tData <- gather(wideData, size, proportion, -sample) %>%
+      mutate(size = sub("X", "", size)) %>% 
+      spread(sample, proportion)
     longData$size <- as.numeric(longData$size)
     # if(!is.na(input$spuriousPeak)) {
     #   sizes <- unique(longData$size)
@@ -47,7 +47,7 @@ shinyServer(function(input, output, session) {
     
 #     longData <- filter(longData, size > input$minSize,
 #                        size < input$maxSize)
-    return(longData)
+    return(tData)
   })
   
   output$mastersizer <- reactive({
