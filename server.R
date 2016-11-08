@@ -34,7 +34,7 @@ shinyServer(function(input, output, session) {
     
     wideData <- read.csv(inFile$datapath)
     tData <- gather(wideData, size, proportion, -sample) %>%
-      mutate(size = sub("X", "", size)) %>% 
+      mutate(size = as.numeric(sub("X", "", size))) %>% 
       spread(sample, proportion)
     #longData$size <- as.numeric(longData$size)
     # if(!is.na(input$spuriousPeak)) {
