@@ -36,7 +36,7 @@ shinyServer(function(input, output, session) {
     tData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = sub("X", "", size)) %>% 
       spread(sample, proportion)
-    longData$size <- as.numeric(longData$size)
+    #longData$size <- as.numeric(longData$size)
     # if(!is.na(input$spuriousPeak)) {
     #   sizes <- unique(longData$size)
     #   nearest <- sizes[which.min(abs(sizes - input$spuriousPeak))]
