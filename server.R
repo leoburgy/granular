@@ -266,20 +266,11 @@ shinyServer(function(input, output, session) {
   #   }
   # })
   
-  getWideData <- reactive({
-    print("running getWideData")
-    longData <- getData()
-    if(!is.null(getData())) {
-      wideData <- longData %>% 
-        spread(sample, proportion) %>% 
-        setNames(c("particle_size", paste0("freq", 1:(ncol(.) - 1))))
-    }
-  })
   
   getFitData <- reactive({
     print("running getFitData")
-    wideData <- getWideData()
-    if(!is.null(getWideData())) {
+    wideData <- getData()
+    if(!is.null(getData())) {
       ps <- wideData[, 1]
       Dist <- wideData[, 2:ncol(wideData)]
       eg.out <- mixDist(ps, Dist)
