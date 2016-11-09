@@ -212,8 +212,8 @@ function brushended() {
 	} else {
 		console.log("yes s");
 		x.domain([s[0][0], s[1][0]].map(x.invert, x));
-		Shiny.onInputChange("min", x.invert(s[0][0]));
-		Shiny.onInputChange("max", x.invert(s[1][0]));
+		Shiny.onInputChange("min_val", x.invert(s[0][0]));
+		Shiny.onInputChange("max_val", x.invert(s[1][0]));
 		y.domain([s[1][1], s[0][1]].map(y.invert, y));
 		svg.select(".brush").call(brush.move, null);
 	}

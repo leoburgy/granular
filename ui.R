@@ -31,9 +31,8 @@ shinyUI(fluidPage(
                      tags$div(class = 'row-fluid',
                               fileInput('file', 'Choose CSV file', accept=c('text/csv', 
                                                                             'text/comma-separated-values,text/plain', 
-                                                                            '.csv')))
-                     # uiOutput("starchPar"),
-                     # uiOutput("peakmu")
+                                                                            '.csv'))),
+                     textOutput("params")
                      )
   ),
   actionButton("goButton", "Go!"),
