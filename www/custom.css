@@ -14,12 +14,12 @@
     stroke-width: 1px;
     opacity: 0.8;
   }
-/*
+
 text { 
-  color: white;
-  stroke: white;
-  fill: white;
-  }*/
+  color: black;
+  stroke-opacity: 0;
+  fill: black;
+}
 
   .hover-line { 
     stroke: black;  
@@ -52,3 +52,18 @@ text {
     stroke: steelblue;
     stroke-width: 1.5px;
   }
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+}
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
