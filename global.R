@@ -1,17 +1,4 @@
 library(mixdist)
-#js function to override values parameter from ionrangeslider
-#selection made on id
-
-jsCode <- '
-shinyjs.slideVals = function(params) {
-var defaultParams = {
-id : null,
-vals : [0, 1]
-};
-params = shinyjs.getParams(params, defaultParams);
-
-$("#" + params.id).data("ionRangeSlider").update({"values":params.vals});
-}'
 
 mixDist <- function(ps, 		# ps: vector of the particle size bin values
                     Dist, 		# Dist: the relative frequency in corresponding bin
