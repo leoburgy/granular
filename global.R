@@ -2,7 +2,8 @@ library(mixdist)
 
 mixDist <- function(ps, 		# ps: vector of the particle size bin values
                     Dist, 		# Dist: the relative frequency in corresponding bin
-                    ncomp=3, 
+                    ncomp=3,
+                    comp_ids = c("A", "B", "C"),
                     initial_values=data.frame("pi"=c(0.02344, 0.39337, 0.58319), 
                                               "mu"=c(-0.303, 1.843, 3.059), 
                                               "sigma"=c(0.2675, 0.9121, 0.4002)),
