@@ -68,8 +68,8 @@ shinyServer(function(input, output, session) {
       input$peak_C
     } else(NULL)
     
-    params <- list(min_val = min_val, max_val = max_val, 
-                   peak_A = peak_A, peak_B = peak_B, peak_C = peak_C)
+    params <- list(range = list(min_val = min_val, max_val = max_val), 
+                   peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
     
     print(params)
     
@@ -79,16 +79,19 @@ shinyServer(function(input, output, session) {
   
   output$params <- renderText({
     params <- get_params()
-    paste("Parameters are: ", params[[1]], params[[2]])
+    paste("Min/max are: ", params[[1]], "\n",
+          "Peaks are: ", params[[2]])
   })
+  
   
   getFitData <- reactive({
     print("running getFitData")
     wideData <- getData()
+    params <- get_params()
     if(!is.null(getData())) {
       ps <- wideData[, 1]
       Dist <- wideData[, 2:ncol(wideData)]
-      eg.out <- mixDist(ps, Dist)
+      eg.out <- mixDist(ps, Dist, comp_means = rev(unlist(params[[2]])))
       eg.out
     }
   })
