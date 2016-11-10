@@ -9,6 +9,8 @@
   var mydata;
   var xAxis, yAxis;
 
+  var x0,sample;
+  var samples = [];
 
   $.extend(networkOutputBinding, {
     find: function(scope) {
@@ -44,45 +46,45 @@ function drawGraph(data){
   	// svg.attr("width", container.node().getBoundingClientRect().width);
   	// svg.attr("height", 500);
 	margin = {top: 20, right: 80, bottom: 30, left: 50};
-	console.log(svg.node().getBoundingClientRect())
-	width = svg.node().getBoundingClientRect().width - margin.left - margin.right;
-	height = 400 - margin.top - margin.bottom;
+	console.log(svg.node().getBoundingClientRect());
+
+	width = 400;//svg.node().getBoundingClientRect().width - margin.left - margin.right;
+	height = 400;
 	g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  	brush = d3.brush().on("end", brushended);
+	g = svg.append("g");
+  	brush = d3.brushX().extent([[0, 0], [width, height]]).on("end", brushended);
+  	//brush = d3.brush().on("end", brushended);
 	
 	svg.append("g")
     .attr("class", "brush")
     .call(brush);
 
 	x = d3.scaleLog().range([0, width]);
+	x0 = d3.scaleLog().range([0, width]);
 	y = d3.scaleLinear().range([height, 0]);
 	z = d3.scaleOrdinal(d3.schemeCategory10);
-	line = d3.line()
-		.curve(d3.curveBasis)
-		.x(function(d) { return x(d.psize); })
-		.y(function(d) { return y(d.frequency); });
 
 
   	// Hover line. 
 	hoverLineGroup = svg.append("g")
 		.attr("class", "hover-line");
+
 	hoverLine = hoverLineGroup
 		.append("line")
 		.attr("x1", 0).attr("x2", 0) 
-		.attr("y1", margin.top).attr("y2", height + margin.top); 
+		.attr("y1", 0).attr("y2", height); 
 
 	hoverText = hoverLineGroup.append('text')
 		.attr("class", "hover-text")
-		.attr('y', margin.top + 20);
+		.attr('y', 20);
 
 	
 	// Hide hover line by default.
 	hoverLineGroup.style("opacity", 1e-6);
 
-	// console.log("I am here");
 	var size = data.size;
-	var samples = []
+	
 	for(xx in data){
 		if(xx=="size") continue;
 		var myobj = {id: xx, values: []}
@@ -92,17 +94,22 @@ function drawGraph(data){
 		samples.push(myobj);
 	}
 
-	// console.log(samples);
 	x.domain(d3.extent(data.size, function(d) { return d; }));
+	x0.domain(d3.extent(data.size, function(d) { return d; }));
 
-	y.domain([
+	y.domain( [
 	  d3.min(samples, function(c) { return d3.min(c.values, function(d) { return d.frequency; }); }),
 	  d3.max(samples, function(c) { return d3.max(c.values, function(d) { return d.frequency; }); })
 	  ]);
-
 	z.domain(samples.map(function(c) { return c.id; }));
+
+	line = d3.line()
+		.curve(d3.curveBasis)
+		.x(function(d) { return x(d.psize); })
+		.y(function(d) { return y(d.frequency); });
+
 	xAxis =  d3.axisBottom(x);
-	yAxis = d3.axisLeft(y);
+	yAxis = d3.axisRight(y);
 
 	g.append("g")
 		.attr("class", "axis axis--x")
@@ -113,13 +120,14 @@ function drawGraph(data){
 		.attr("class", "axis axis--y")
 		.call(yAxis)
 		.append("text")
-		.attr("transform", "rotate(-90)")
-		.attr("y", 6)
+		//.attr("transform", "rotate(-90)")
+		.attr("y", 15)
+		.attr("x",10)
 		.attr("dy", "0.71em")
 		.attr("fill", "#000")
 		.text("Frequency");
 
-	var sample = g.selectAll(".sample")
+	sample = g.selectAll(".sample")
 		.data(samples)
 		.enter().append("g")
 		.attr("class", "sample");
@@ -131,7 +139,7 @@ function drawGraph(data){
 
 	sample.append("text")
 		.datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
-		.attr("transform", function(d) { console.log(d.value); return "translate(" + x(d.value.psize) + "," + y(d.value.frequency) + ")"; })
+		.attr("transform", function(d) { return "translate(" + x(d.value.psize) + "," + y(d.value.frequency) + ")"; })
 		.attr("x", 3)
 		.attr("dy", "0.35em")
 		.style("font", "10px sans-serif")
@@ -139,14 +147,13 @@ function drawGraph(data){
 
 	// Add mouseover events.
 	d3.select("svg").on("mousemove", function() {
-		if(lines.counter >= 3 || !lines.brushed) return;
-		//console.log('mousemove', d3.mouse(this));
 		var mouse_x = d3.mouse(this)[0];
-		var mouse_y = d3.mouse(this)[1];
-
-		// var graph_y = y.invert(mouse_y);
 		var graph_x = x.invert(mouse_x);
-		// console.log(mouse_x + " " + mouse_y + " " + graph_y + " " + graph_x);
+	
+		if(lines.counter >= 3 || !lines.brushed) return;
+		var mouse_x = d3.mouse(this)[0];
+		var graph_x = x.invert(mouse_x);
+
 		var char = "A", counter = 0;
 		if(!lines.A){char="A"; }
 		else if(!lines.B){char="B"; counter=1;}
@@ -154,20 +161,15 @@ function drawGraph(data){
 
 		hoverLine.attr("x1", mouse_x).attr("x2", mouse_x);
 		hoverText.text("("+char+") "+graph_x)
-			.attr('y', margin.top + 20 + lineHeight*counter);
-		// hoverText.text(graph_x);
+			.attr('y', 20 + lineHeight*counter);
 	  	hoverText.attr('x', mouse_x + 10);
 		hoverLineGroup.style("opacity", 1);
 
 	}).on("mouseout", function() {
-	    // console.log('mouseout');
 	    hoverLineGroup.style("opacity", 1e-6);
 	}).on('click', function(){
 		if(lines.counter >= 3 || !lines.brushed) return;
 		var mouse_x = d3.mouse(this)[0];
-		// var mouse_y = d3.mouse(this)[1];
-
-		// var graph_y = y.invert(mouse_y);
 		var graph_x = x.invert(mouse_x);
 
 		var lineGroup = svg.append("g").attr("class", "hover-line");
@@ -180,14 +182,14 @@ function drawGraph(data){
 		var line = lineGroup
 			.append("line")
 			.attr("x1", mouse_x).attr("x2", mouse_x) 
-			.attr("y1", margin.top).attr("y2", height + margin.top); 
+			.attr("y1", 0).attr("y2", height); 
 
-		// console.log(mouse_x + " " + graph_x);
 		var text = lineGroup.append('text')
 		   .attr("class", "hover-text")
-		   .attr('y', margin.top + 20 + lineHeight*counter)
+		   .attr('y', 20 + lineHeight*counter)
 		   .attr('x', mouse_x + 10)
 		   .text("("+char+") "+graph_x);
+				
 		Shiny.onInputChange("peak_"+char, graph_x);
 
 		text.on("dblclick", function(){
@@ -200,21 +202,24 @@ function drawGraph(data){
 }
 Shiny.outputBindings.register(networkOutputBinding, 'alexwhan.networkbinding');
 
+var min,max;
 function brushended() {
 	var s = d3.event.selection;
 	console.log(s);
+
+	//Only brush once
+	if(lines.brushed) return;
+
 	if (!s) {
 		console.log("not s");
 		return;
-		// if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-		// x.domain(x0);
-		// y.domain(y0);
 	} else {
-		console.log("yes s");
-		x.domain([s[0][0], s[1][0]].map(x.invert, x));
-		Shiny.onInputChange("min_val", x.invert(s[0][0]));
-		Shiny.onInputChange("max_val", x.invert(s[1][0]));
-		y.domain([s[1][1], s[0][1]].map(y.invert, y));
+		console.log("yes s:" + s);
+		min = s[0];
+		max = s[1];
+		x.domain([s[0],s[1]].map(x.invert,x));
+		Shiny.onInputChange("min_val", x0.invert(s[0]));
+		Shiny.onInputChange("max_val", x0.invert(s[1]));
 		svg.select(".brush").call(brush.move, null);
 	}
 	lines.brushed = true;
@@ -228,10 +233,8 @@ function idled() {
 function zoom() {
 	var t = svg.transition().duration(750);
 	svg.select(".axis--x").transition(t).call(xAxis);
-	svg.select(".axis--y").transition(t).call(yAxis);
-	console.log(svg.selectAll(".line"));
 	svg.selectAll(".line").transition(t)
-		.attr("d", function(d) { console.log({d:d}); return line(d.values); });
+	  	.attr("d", function(d) { return line(d.values); });
 }
 
 </script>
