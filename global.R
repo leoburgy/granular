@@ -30,7 +30,7 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
                     ncomp=3,
                     comp_ids = c("A", "B", "C"),
                     comp_means,
-                    comp_sds,
+                    comp_sds = NULL,
                     comp_weights = NULL,
                     # initial_values=mixdist::mixparam(data.frame("pi"=c(0.02344, 0.39337, 0.58319), 
                     #                           "mu"=c(-0.303, 1.843, 3.059), 
@@ -42,8 +42,6 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
   # checks
   if (is.null(comp_means))
     stop("ERROR: There were no component means supplied")
-  if (is.null(comp_means))
-    stop("ERROR: There were no component sd supplied")
   if (length(ps) != nrow(Dist)) 
     stop("ERROR: The particle size and the distribution is not correct.") 
   if (!is.numeric(ps))
@@ -54,11 +52,7 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
     stop("ERROR: Negative particle size value.")
   if (!all(Dist>=0))
     stop("ERROR: Negative distribution value.")
-  if (is.null(comp_weights)) {
-    heights_d <- heights(ps, Dist, comp_means)
-    comp_weights <- heights_d/(sum(heights_d))
-  } 
-  initial_values <- mixdist::mixparam(comp_means, comp_sds, comp_weights)
+  
   log_ps <- log(ps)
   nline <- ncol(Dist)	
   returnFit <- NULL
@@ -68,6 +62,22 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
     index_end <- max(which(rfreq!=0))
     dat <- data.frame("log_size"=log_ps[index_start:index_end],
                       "rfreq"=rfreq[index_start:index_end])
+    
+    #calculate initial parameters
+    if(is.null(comp_weights)) {
+      heights_d <- heights(dat$log_size, dat$rfreq, comp_means)
+      comp_weights <- heights_d/(sum(heights_d))
+    } 
+    
+    if(is.null(comp_sds)) {
+      spread <- max(dat$log_size) - min(dat$log_size)
+      comp_sds <- rep(spread/ncomp, times = ncomp)
+      comp_sds <- setNames(sds, names(comp_means))
+    } 
+    
+    initial_values <- mixdist::mixparam(comp_means, comp_sds, comp_weights)
+    
+    
     mixFit <- mix(dat, 
                   initial_values, 
                   emsteps=emnum)
