@@ -1,4 +1,6 @@
 library(mixdist)
+library(dplyr)
+library(tidyr)
 library(purrr)
 
 #get heights at peaks
@@ -30,8 +32,8 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
                     ncomp=3,
                     comp_ids = c("A", "B", "C"),
                     comp_means,
-                    comp_sds = NULL,
-                    comp_weights = NULL,
+                    # comp_sds = NULL,
+                    # comp_weights = NULL,
                     # initial_values=mixdist::mixparam(data.frame("pi"=c(0.02344, 0.39337, 0.58319), 
                     #                           "mu"=c(-0.303, 1.843, 3.059), 
                     #                           "sigma"=c(0.2675, 0.9121, 0.4002)),
@@ -57,7 +59,6 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
   nline <- ncol(Dist)	
   returnFit <- NULL
   for (iline in 1:nline) {
-    print(paste("========================", "\n", "\n", "=====================", "iline = ", iline))
     rfreq <- Dist[[iline]]
     index_start <- min(which(rfreq!=0)) # to remove trailing and leading 0 entries.
     index_end <- max(which(rfreq!=0))
@@ -65,22 +66,18 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
                       "rfreq"=rfreq[index_start:index_end])
     
     #calculate initial parameters
-    if(is.null(comp_weights)) {
-      heights_d <- heights(dat$log_size, dat$rfreq, comp_means)
-      comp_weights <- heights_d/(sum(heights_d))
-    } 
+    heights_d <- heights(dat$log_size, dat$rfreq, log(comp_means))
+    print(heights_d)
+    comp_weights <- heights_d/(sum(heights_d))
+    print(comp_weights)
     
-    if(is.null(comp_sds)) {
-      spread <- max(dat$log_size) - min(dat$log_size)
-      comp_sds <- rep(spread/ncomp, times = ncomp)
-      comp_sds <- setNames(comp_sds, names(comp_means))
-    } 
+    spread <- max(dat$log_size) - min(dat$log_size)
+    comp_sds <- rep(spread/ncomp, times = ncomp)
+    comp_sds <- setNames(comp_sds, names(comp_means))
     
-    initial_values <- mixdist::mixparam(comp_means, comp_sds, comp_weights)
+    initial_values <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
     
-    print(paste("This is the head(dat) inside for loop", head(dat)))
-    print(paste("This is the str(dat) inside for loop", str(dat)))
-    
+    print(paste("these are the initial_values", initial_values))
     mixFit <- mix(dat, 
                   initial_values, 
                   emsteps=emnum)

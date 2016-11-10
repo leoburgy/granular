@@ -73,6 +73,8 @@ shinyServer(function(input, output, session) {
     
     print(params)
     
+    print(params)
+    
     return(params)
       
   })
