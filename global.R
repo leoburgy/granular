@@ -57,6 +57,7 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
   nline <- ncol(Dist)	
   returnFit <- NULL
   for (iline in 1:nline) {
+    print(paste("========================", "\n", "\n", "=====================", "iline = ", iline))
     rfreq <- Dist[[iline]]
     index_start <- min(which(rfreq!=0)) # to remove trailing and leading 0 entries.
     index_end <- max(which(rfreq!=0))
@@ -72,11 +73,13 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
     if(is.null(comp_sds)) {
       spread <- max(dat$log_size) - min(dat$log_size)
       comp_sds <- rep(spread/ncomp, times = ncomp)
-      comp_sds <- setNames(sds, names(comp_means))
+      comp_sds <- setNames(comp_sds, names(comp_means))
     } 
     
     initial_values <- mixdist::mixparam(comp_means, comp_sds, comp_weights)
     
+    print(paste("This is the head(dat) inside for loop", head(dat)))
+    print(paste("This is the str(dat) inside for loop", str(dat)))
     
     mixFit <- mix(dat, 
                   initial_values, 
