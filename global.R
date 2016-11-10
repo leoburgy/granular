@@ -1,17 +1,49 @@
 library(mixdist)
+library(purrr)
+
+#get heights at peaks
+heights <- function(ps, Dist, peaks) {
+  heights_out <- lapply(peaks, function(x) {
+    Dist[which.min(abs(ps - x))]
+  })
+  return(unlist(heights_out))
+}
+
+make_dist <- function(x, means, sds, weights) {
+  dists <- lapply(names(means), function(y) {
+    dnorm(x, means[[y]], sds[[y]]) * weights[[y]]
+    })
+  names(dists) <- names(means)
+  
+  dists_df <- as.data.frame(dists)
+  dists_df$sum <- rowSums(dists_df)
+  dists_df$size <- x
+  return(dists_df)
+}
+
+heights2weights <- function(heights) {
+  heights/(sum(heights))
+}
 
 mixDist <- function(ps, 		# ps: vector of the particle size bin values
                     Dist, 		# Dist: the relative frequency in corresponding bin
                     ncomp=3,
                     comp_ids = c("A", "B", "C"),
-                    initial_values=data.frame("pi"=c(0.02344, 0.39337, 0.58319), 
-                                              "mu"=c(-0.303, 1.843, 3.059), 
-                                              "sigma"=c(0.2675, 0.9121, 0.4002)),
+                    comp_means,
+                    comp_sds,
+                    comp_weights = NULL,
+                    # initial_values=mixdist::mixparam(data.frame("pi"=c(0.02344, 0.39337, 0.58319), 
+                    #                           "mu"=c(-0.303, 1.843, 3.059), 
+                    #                           "sigma"=c(0.2675, 0.9121, 0.4002)),
                     printFit=TRUE,
                     printPlot=TRUE,
                     emnum=5
 ) {
   # checks
+  if (is.null(comp_means))
+    stop("ERROR: There were no component means supplied")
+  if (is.null(comp_means))
+    stop("ERROR: There were no component sd supplied")
   if (length(ps) != nrow(Dist)) 
     stop("ERROR: The particle size and the distribution is not correct.") 
   if (!is.numeric(ps))
@@ -22,6 +54,11 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
     stop("ERROR: Negative particle size value.")
   if (!all(Dist>=0))
     stop("ERROR: Negative distribution value.")
+  if (is.null(comp_weights)) {
+    heights_d <- heights(ps, Dist, comp_means)
+    comp_weights <- heights_d/(sum(heights_d))
+  } 
+  initial_values <- mixdist::mixparam(comp_means, comp_sds, comp_weights)
   log_ps <- log(ps)
   nline <- ncol(Dist)	
   returnFit <- NULL
