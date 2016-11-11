@@ -69,7 +69,7 @@ mix_dist <- function(dist,
                 emsteps=emnum)
   if (printPlot) {
     # par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
-    # plot(mixFit, 
+    # plot(mixFit, i
     #      xlab=expression(paste("Log of particle size diameter (", mu, "m)")), 				 cex=2, cex.axis=2, cex.lab=2,
     #      main=paste("Fit"#, dist_name
     #                 ))
@@ -81,5 +81,11 @@ mix_dist <- function(dist,
   }
   line <- rep(dist_name, ncomp)
   theFit <- cbind(line, peak = names(comp_means), mixFit$parameters, mixFit$se)
-  return(theFit)		
+  return(list(theFit, mixFit))		
+}
+
+plot_mix <- function(mix) {
+  real_dat <- mix$mixdata
+  p <- ggplot2::ggplot(real_dat, ggplot2::aes(log_size, rfreq)) + ggplot2::geom_line()
+  print(p)
 }
