@@ -1,7 +1,6 @@
 library(shiny)
 library(tidyr)
 library(dplyr)
-library(scales)
 source('global.R')
 
 shinyServer(function(input, output, session) {
