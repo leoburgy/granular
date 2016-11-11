@@ -35,7 +35,6 @@ get_heights <- function(dist, ps, means) {
 #' @export
 mix_dist <- function(dist,
                     ps, 
-                    dist_name,
                     comp_means,
                     printFit=TRUE,
                     printPlot=TRUE,
@@ -60,15 +59,21 @@ mix_dist <- function(dist,
   index_end <- max(which(dist!=0))
   dat <- data.frame("log_size"=log_ps[index_start:index_end],
                     "rfreq"=dist[index_start:index_end])
-  ncomp <- length(means)
+  ncomp <- length(comp_means)
   #calculate initial parameters
-  heights_d <- get_heights(dat$log_size, dat$rfreq, log(comp_means))
+  heights_d <- get_heights(dat$rfreq, dat$log_size, log(comp_means))
   comp_weights <- heights_d/(sum(heights_d))
   
-  comp_sds <- rep(diff(range(dat$log_size)), times = ncomp)
+  comp_sds <- rep(diff(range(dat$log_size))/ncomp, times = ncomp)
   
+  print("comp_means")
+  print(comp_means)
+  print("comp_sds")
+  print(comp_sds)
+  print("comp_weights")
+  print(comp_weights)
   initial_values <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
-  
+  print(initial_values)
   mixFit <- mix(dat, 
                 initial_values, 
                 emsteps=emnum)
@@ -76,13 +81,15 @@ mix_dist <- function(dist,
     par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
     plot(mixFit, 
          xlab=expression(paste("Log of particle size diameter (", mu, "m)")), 				 cex=2, cex.axis=2, cex.lab=2,
-         main=paste("Fit", dist_name))
+         main=paste("Fit"#, dist_name
+                    ))
   }
   if (printFit) {
-    print(paste("Fit", dist_name))
+    print(paste("Fit"#, dist_name
+                ))
     print(mixFit)
   }
-  line <- rep(dist_name, ncomp)
+  line <- 1#rep(dist_name, ncomp)
   theFit <- cbind(line, peak = names(comp_means), mixFit$parameters, mixFit$se)
   #returnFit <- rbind(returnFit, theFit)
   return(theFit)		

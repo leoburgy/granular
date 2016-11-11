@@ -26,13 +26,13 @@ shinyServer(function(input, output, session) {
     return(tData)
   })
   
-  output_data <- reactive({
-    tData <- getData()
-    nlines <- ncol(tData) - 1
-    return(vector(mode = "list", length = nlines))
+  observe({
+    if(!is.null(getData())) {
+      output_list <<- vector("list", ncol(getData()) - 1)
+      print("just made output_list")
+      print(output_list)
+    }
   })
-  
-  print(output_data)
   
   output$mastersizer <- reactive({
     getData()
@@ -74,34 +74,38 @@ shinyServer(function(input, output, session) {
     return(params)
   })
   
-  output$params <- renderText({
-    params <- get_params()
-    paste("Min/max are: ", params[[1]], "\n",
-          "Peaks are: ", params[[2]])
-  })
-  
-  
-  getFitData <- reactive({
+  observeEvent(input$goButton, {
     wideData <- getData()
     params <- get_params()
-    if(!is.null(getData())) {
-      ps <- wideData[, 1]
-      Dist <- wideData[, 2:ncol(wideData)]
-      eg.out <- mixDist(ps, Dist, comp_means = rev(unlist(params[[2]])))
-      eg.out
+    means <- rev(unlist(params[[2]]))
+    tData <- getData()
+    ps <- tData[[1]]
+    for(i in seq_along(2:ncol(tData))) {
+      newfit <- mix_dist(tData[[i + 1]], ps, comp_means = means)
+      output_list[[i]] <- newfit
+      print(output_list)
     }
+    # if(!is.null(getData())) {
+    #   ps <- wideData[, 1]
+    #   Dist <- wideData[, 2:ncol(wideData)]
+    #   eg.out <- mix_dist(dist, ps, comp_means = rev(unlist(params[[2]])))
+    #   eg.out
+    # }
   })
   
-  outputData <- eventReactive(input$goButton, {
-    fitData <- getFitData()
-    if(!is.null(getFitData())) {
-      cat(str(fitData))
-      return(fitData)
-    }
-  })
+  # outputData <- eventReactive(input$goButton, {
+  #   if(!is.null(get_params())) {
+  # 
+  #     # fitData <- getFitData()
+  #     # if(!is.null(getFitData())) {
+  #     #   cat(str(fitData))
+  #     #   return(fitData)
+  #     # }
+  #   }
+  # })
   
   output$longDataTable <- renderDataTable({
-    outputData()
+    #outputData()
   })
   
 })
