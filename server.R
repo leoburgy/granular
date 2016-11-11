@@ -107,16 +107,8 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  
-  
-  output$temp <- renderText(paste(input$spuriousPeak, paste(getLimits())))
   output$longDataTable <- renderDataTable({
     outputData()
-  })
-  
-  observe({
-    print(paste("counter1 ", input$counter1))
-    print(paste("counter2 ", input$counter2))
   })
   
 })
