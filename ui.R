@@ -1,5 +1,4 @@
 library(shiny)
-library(ggvis)
 source('global.R')
 
 mastersizer_vis <- function(outputId) {
