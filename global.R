@@ -33,8 +33,9 @@ get_heights <- function(dist, ps, means) {
 #'
 #' @return A dataframe with the fit parameters for each distribution
 #' @export
-mixDist <- function(dist,
+mix_dist <- function(dist,
                     ps, 
+                    dist_name,
                     comp_means,
                     printFit=TRUE,
                     printPlot=TRUE,
@@ -43,56 +44,46 @@ mixDist <- function(dist,
   # checks
   if (is.null(comp_means))
     stop("ERROR: There were no component means supplied")
-  if (length(ps) != nrow(Dist)) 
+  if (length(ps) != length(dist)) 
     stop("ERROR: The particle size and the distribution is not correct.") 
   if (!is.numeric(ps))
     stop("ERROR: Non-numeric value in the particle size.")
-  if (!all(apply(Dist, 2, is.numeric)))
-    stop("ERROR: Non-numeric value in the distribution.")
+  if (!is.numeric(dist))
+    stop("ERROR: The distribution is not numeric")
   if (!all(ps>=0))
     stop("ERROR: Negative particle size value.")
-  if (!all(Dist>=0))
+  if (!all(dist>=0))
     stop("ERROR: Negative distribution value.")
   
   log_ps <- log(ps)
-  returnFit <- NULL
-  for (name in names(Dist)) {
-    rfreq <- Dist[[name]]
-    index_start <- min(which(rfreq!=0)) # to remove trailing and leading 0 entries.
-    index_end <- max(which(rfreq!=0))
-    dat <- data.frame("log_size"=log_ps[index_start:index_end],
-                      "rfreq"=rfreq[index_start:index_end])
-    
-    #calculate initial parameters
-    heights_d <- get_heights(dat$log_size, dat$rfreq, log(comp_means))
-    print(heights_d)
-    comp_weights <- heights_d/(sum(heights_d))
-    print(comp_weights)
-    
-    spread <- max(dat$log_size) - min(dat$log_size)
-    comp_sds <- rep(spread/ncomp, times = ncomp)
-    comp_sds <- setNames(comp_sds, names(comp_means))
-    
-    initial_values <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
-    
-    print(paste("these are the initial_values", initial_values))
-    mixFit <- mix(dat, 
-                  initial_values, 
-                  emsteps=emnum)
-    if (printPlot) {
-      par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
-      plot(mixFit, 
-           xlab=expression(paste("Log of particle size diameter (", mu, "m)")), 				 cex=2, cex.axis=2, cex.lab=2,
-           main=paste("Fit", name))
-    }
-    if (printFit) {
-      print(paste("Fit", name))
-      print(mixFit)
-    }
-#    browser()
-    line <- rep(name, ncomp)
-    theFit <- cbind(line, peak = names(comp_means), mixFit$parameters, mixFit$se)
-    returnFit <- rbind(returnFit, theFit)
+  index_start <- min(which(dist!=0)) # to remove trailing and leading 0 entries.
+  index_end <- max(which(dist!=0))
+  dat <- data.frame("log_size"=log_ps[index_start:index_end],
+                    "rfreq"=dist[index_start:index_end])
+  ncomp <- length(means)
+  #calculate initial parameters
+  heights_d <- get_heights(dat$log_size, dat$rfreq, log(comp_means))
+  comp_weights <- heights_d/(sum(heights_d))
+  
+  comp_sds <- rep(diff(range(dat$log_size)), times = ncomp)
+  
+  initial_values <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
+  
+  mixFit <- mix(dat, 
+                initial_values, 
+                emsteps=emnum)
+  if (printPlot) {
+    par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
+    plot(mixFit, 
+         xlab=expression(paste("Log of particle size diameter (", mu, "m)")), 				 cex=2, cex.axis=2, cex.lab=2,
+         main=paste("Fit", dist_name))
   }
-  return(returnFit)		
+  if (printFit) {
+    print(paste("Fit", dist_name))
+    print(mixFit)
+  }
+  line <- rep(dist_name, ncomp)
+  theFit <- cbind(line, peak = names(comp_means), mixFit$parameters, mixFit$se)
+  #returnFit <- rbind(returnFit, theFit)
+  return(theFit)		
 }
