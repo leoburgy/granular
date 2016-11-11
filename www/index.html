@@ -148,11 +148,11 @@ function drawGraph(data){
 	// Add mouseover events.
 	d3.select("svg").on("mousemove", function() {
 		var mouse_x = d3.mouse(this)[0];
-		var graph_x = x.invert(mouse_x);
+		var graph_x = Math.round(x.invert(mouse_x)*100)/100;
 	
 		if(lines.counter >= 3 || !lines.brushed) return;
 		var mouse_x = d3.mouse(this)[0];
-		var graph_x = x.invert(mouse_x);
+		var graph_x = Math.round(x.invert(mouse_x)*100)/100;
 
 		var char = "A", counter = 0;
 		if(!lines.A){char="A"; }
@@ -170,7 +170,7 @@ function drawGraph(data){
 	}).on('click', function(){
 		if(lines.counter >= 3 || !lines.brushed) return;
 		var mouse_x = d3.mouse(this)[0];
-		var graph_x = x.invert(mouse_x);
+		var graph_x = Math.round(x.invert(mouse_x)*100)/100;
 
 		var lineGroup = svg.append("g").attr("class", "hover-line");
 
