@@ -58,8 +58,8 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
   log_ps <- log(ps)
   nline <- ncol(Dist)	
   returnFit <- NULL
-  for (iline in 1:nline) {
-    rfreq <- Dist[[iline]]
+  for (name in names(Dist)) {
+    rfreq <- Dist[[name]]
     index_start <- min(which(rfreq!=0)) # to remove trailing and leading 0 entries.
     index_end <- max(which(rfreq!=0))
     dat <- data.frame("log_size"=log_ps[index_start:index_end],
@@ -85,14 +85,15 @@ mixDist <- function(ps, 		# ps: vector of the particle size bin values
       par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
       plot(mixFit, 
            xlab=expression(paste("Log of particle size diameter (", mu, "m)")), 				 cex=2, cex.axis=2, cex.lab=2,
-           main=paste("Fit", iline))
+           main=paste("Fit", name))
     }
     if (printFit) {
-      print(paste("Fit", iline))
+      print(paste("Fit", name))
       print(mixFit)
     }
-    line <- rep(iline, ncomp)
-    theFit <- cbind(line, mixFit$parameters, mixFit$se)
+#    browser()
+    line <- rep(name, ncomp)
+    theFit <- cbind(line, peak = names(comp_means), mixFit$parameters, mixFit$se)
     returnFit <- rbind(returnFit, theFit)
   }
   return(returnFit)		

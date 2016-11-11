@@ -114,5 +114,9 @@ shinyServer(function(input, output, session) {
     outputData()
   })
   
+  observe({
+    print(paste("counter1 ", input$counter1))
+    print(paste("counter2 ", input$counter2))
+  })
   
 })
