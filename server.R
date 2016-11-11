@@ -8,18 +8,11 @@ shinyServer(function(input, output, session) {
   
   observe({
     if(input$goButton > 0){
-      print('1')
       session$sendCustomMessage("myCallbackHandler", "1")
     }
   })
-# observe({
-#   if(input$action1 > 0){
-#     print('2')
-#     session$sendCustomMessage("myCallbackHandler", "2")
-#   }
-# })
-
-    getData <- reactive({
+  
+  getData <- reactive({
     inFile <- input$file
     if (is.null(inFile))
       return(NULL)
@@ -33,12 +26,19 @@ shinyServer(function(input, output, session) {
     return(tData)
   })
   
+  output_data <- reactive({
+    tData <- getData()
+    nlines <- ncol(tData) - 1
+    return(vector(mode = "list", length = nlines))
+  })
+  
+  print(output_data)
+  
   output$mastersizer <- reactive({
     getData()
   })
   
   get_params <- reactive({
-    print("getting params again")
     min_val <- if(!is.null(input$min_val)) {
       input$min_val
     } else NULL
@@ -71,12 +71,7 @@ shinyServer(function(input, output, session) {
     params <- list(range = list(min_val = min_val, max_val = max_val), 
                    peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
     
-    print(params)
-    
-    print(params)
-    
     return(params)
-      
   })
   
   output$params <- renderText({
@@ -87,7 +82,6 @@ shinyServer(function(input, output, session) {
   
   
   getFitData <- reactive({
-    print("running getFitData")
     wideData <- getData()
     params <- get_params()
     if(!is.null(getData())) {
@@ -99,7 +93,6 @@ shinyServer(function(input, output, session) {
   })
   
   outputData <- eventReactive(input$goButton, {
-    print("running outputData")
     fitData <- getFitData()
     if(!is.null(getFitData())) {
       cat(str(fitData))
