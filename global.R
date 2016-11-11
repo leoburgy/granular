@@ -12,10 +12,10 @@ library(purrr)
 #' @return A named vector with heights for each mean
 #'
 #' @examples
-heights <- function(dist, ps, means) {
-  stopifnot(is.numeric(dist),
-            is.numeric(ps),
-            is.numeric(means))
+get_heights <- function(dist, ps, means) {
+  if(!is.numeric(dist)) stop("dist is not numeric")
+  if(!is.numeric(ps)) stop("ps is not numeric")
+  if(!is.numeric(means)) stop("means are not numeric")
   heights_out <- lapply(means, function(x) {
     dist[which.min(abs(ps - x))]
   })
@@ -24,18 +24,17 @@ heights <- function(dist, ps, means) {
 
 #' use mix() to estimate underlying distributions
 #'
-#' @param dist 
-#' @param ps 
-#' @param comp_means 
-#' @param printPlot 
-#' @param emnum 
+#' @param dist A numeric vector defining the distribution
+#' @param ps A numeric vector describing the granule sizes
+#' @param comp_means A named numeric vector defining the means (center) for each peak
+#' @param printFit Logical. Whether or not to print the fir output to the console
+#' @param printPlot Logical. Whether or not to print the plot showing the fit
+#' @param emnum passed to mix() - A non-negative integer specifying the number of EM steps to be performed
 #'
-#' @return
+#' @return A dataframe with the fit parameters for each distribution
 #' @export
-#'
-#' @examples
 mixDist <- function(dist,
-                    ps, 		# ps: vector of the particle size bin values
+                    ps, 
                     comp_means,
                     printFit=TRUE,
                     printPlot=TRUE,
@@ -56,7 +55,6 @@ mixDist <- function(dist,
     stop("ERROR: Negative distribution value.")
   
   log_ps <- log(ps)
-  nline <- ncol(Dist)	
   returnFit <- NULL
   for (name in names(Dist)) {
     rfreq <- Dist[[name]]
@@ -66,7 +64,7 @@ mixDist <- function(dist,
                       "rfreq"=rfreq[index_start:index_end])
     
     #calculate initial parameters
-    heights_d <- heights(dat$log_size, dat$rfreq, log(comp_means))
+    heights_d <- get_heights(dat$log_size, dat$rfreq, log(comp_means))
     print(heights_d)
     comp_weights <- heights_d/(sum(heights_d))
     print(comp_weights)
