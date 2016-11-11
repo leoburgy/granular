@@ -3,28 +3,20 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 
-#get heights at peaks
-heights <- function(ps, Dist, peaks) {
-  heights_out <- lapply(peaks, function(x) {
-    Dist[which.min(abs(ps - x))]
+#' Get the heights at peaks
+#'
+#' @param dist A numeric vector defining the distribution
+#' @param ps A numeric vector describing the granule sizes
+#' @param means A named numeric vector defining the means (center) for each peak 
+#'
+#' @return
+#'
+#' @examples
+heights <- function(dist, ps, means) {
+  heights_out <- lapply(means, function(x) {
+    dist[which.min(abs(ps - x))]
   })
   return(unlist(heights_out))
-}
-
-make_dist <- function(x, means, sds, weights) {
-  dists <- lapply(names(means), function(y) {
-    dnorm(x, means[[y]], sds[[y]]) * weights[[y]]
-    })
-  names(dists) <- names(means)
-  
-  dists_df <- as.data.frame(dists)
-  dists_df$sum <- rowSums(dists_df)
-  dists_df$size <- x
-  return(dists_df)
-}
-
-heights2weights <- function(heights) {
-  heights/(sum(heights))
 }
 
 mixDist <- function(ps, 		# ps: vector of the particle size bin values
