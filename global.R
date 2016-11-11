@@ -9,26 +9,34 @@ library(purrr)
 #' @param ps A numeric vector describing the granule sizes
 #' @param means A named numeric vector defining the means (center) for each peak 
 #'
-#' @return
+#' @return A named vector with heights for each mean
 #'
 #' @examples
 heights <- function(dist, ps, means) {
+  stopifnot(is.numeric(dist),
+            is.numeric(ps),
+            is.numeric(means))
   heights_out <- lapply(means, function(x) {
     dist[which.min(abs(ps - x))]
   })
   return(unlist(heights_out))
 }
 
-mixDist <- function(ps, 		# ps: vector of the particle size bin values
-                    Dist, 		# Dist: the relative frequency in corresponding bin
-                    ncomp=3,
-                    comp_ids = c("A", "B", "C"),
+#' use mix() to estimate underlying distributions
+#'
+#' @param dist 
+#' @param ps 
+#' @param comp_means 
+#' @param printPlot 
+#' @param emnum 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+mixDist <- function(dist,
+                    ps, 		# ps: vector of the particle size bin values
                     comp_means,
-                    # comp_sds = NULL,
-                    # comp_weights = NULL,
-                    # initial_values=mixdist::mixparam(data.frame("pi"=c(0.02344, 0.39337, 0.58319), 
-                    #                           "mu"=c(-0.303, 1.843, 3.059), 
-                    #                           "sigma"=c(0.2675, 0.9121, 0.4002)),
                     printFit=TRUE,
                     printPlot=TRUE,
                     emnum=5
