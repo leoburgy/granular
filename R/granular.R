@@ -32,6 +32,7 @@ get_heights <- function(dist, ps, means) {
 mix_dist <- function(dist,
                     ps, 
                     comp_means,
+                    dist_name,
                     printFit=TRUE,
                     printPlot=TRUE,
                     emnum=5
@@ -67,19 +68,18 @@ mix_dist <- function(dist,
                 initial_values, 
                 emsteps=emnum)
   if (printPlot) {
-    par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
-    plot(mixFit, 
-         xlab=expression(paste("Log of particle size diameter (", mu, "m)")), 				 cex=2, cex.axis=2, cex.lab=2,
-         main=paste("Fit"#, dist_name
-                    ))
+    # par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
+    # plot(mixFit, 
+    #      xlab=expression(paste("Log of particle size diameter (", mu, "m)")), 				 cex=2, cex.axis=2, cex.lab=2,
+    #      main=paste("Fit"#, dist_name
+    #                 ))
   }
   if (printFit) {
     print(paste("Fit"#, dist_name
                 ))
     print(mixFit)
   }
-  line <- 1#rep(dist_name, ncomp)
+  line <- rep(dist_name, ncomp)
   theFit <- cbind(line, peak = names(comp_means), mixFit$parameters, mixFit$se)
-  #returnFit <- rbind(returnFit, theFit)
   return(theFit)		
 }
