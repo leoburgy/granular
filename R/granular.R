@@ -1,7 +1,3 @@
-library(mixdist)
-library(dplyr)
-library(tidyr)
-library(purrr)
 
 #' Get the heights at peaks
 #'
@@ -40,7 +36,6 @@ mix_dist <- function(dist,
                     printPlot=TRUE,
                     emnum=5
 ) {
-  # checks
   if (is.null(comp_means))
     stop("ERROR: There were no component means supplied")
   if (length(ps) != length(dist)) 
@@ -60,21 +55,15 @@ mix_dist <- function(dist,
   dat <- data.frame("log_size"=log_ps[index_start:index_end],
                     "rfreq"=dist[index_start:index_end])
   ncomp <- length(comp_means)
-  #calculate initial parameters
-  heights_d <- get_heights(dat$rfreq, dat$log_size, log(comp_means))
+
+    #calculate initial parameters
+  heights_d <- get_heights(dat[["rfreq"]], dat[["log_size"]], log(comp_means))
   comp_weights <- heights_d/(sum(heights_d))
   
   comp_sds <- rep(diff(range(dat$log_size))/ncomp, times = ncomp)
   
-  print("comp_means")
-  print(comp_means)
-  print("comp_sds")
-  print(comp_sds)
-  print("comp_weights")
-  print(comp_weights)
   initial_values <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
-  print(initial_values)
-  mixFit <- mix(dat, 
+  mixFit <- mixdist::mix(dat, 
                 initial_values, 
                 emsteps=emnum)
   if (printPlot) {
