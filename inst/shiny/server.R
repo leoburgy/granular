@@ -1,7 +1,7 @@
 library(shiny)
 library(tidyr)
 library(dplyr)
-source('global.R')
+source('../../R/granular.R')
 
 shinyServer(function(input, output, session) {
   
@@ -15,9 +15,7 @@ shinyServer(function(input, output, session) {
     inFile <- input$file
     if (is.null(inFile))
       return(NULL)
-    # if (is.null(input$logOption))
-    #   return(NULL)
-    
+
     wideData <- read.csv(inFile$datapath)
     tData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = as.numeric(sub("X", "", size))) %>% 
@@ -28,8 +26,12 @@ shinyServer(function(input, output, session) {
   observe({
     if(!is.null(getData())) {
       output_list <<- vector("list", ncol(getData()) - 1)
-      print("just made output_list")
-      print(output_list)
+    }
+  })
+  
+  observe({
+    if(!is.null(getData())) {
+      output_df <- bind_rows(output_list)
     }
   })
   
@@ -79,32 +81,33 @@ shinyServer(function(input, output, session) {
     means <- rev(unlist(params[[2]]))
     tData <- getData()
     ps <- tData[[1]]
-    for(i in seq_along(2:ncol(tData))) {
-      newfit <- mix_dist(tData[[i + 1]], ps, comp_means = means)
-      output_list[[i]] <- newfit
-      print(output_list)
-    }
-    # if(!is.null(getData())) {
-    #   ps <- wideData[, 1]
-    #   Dist <- wideData[, 2:ncol(wideData)]
-    #   eg.out <- mix_dist(dist, ps, comp_means = rev(unlist(params[[2]])))
-    #   eg.out
-    # }
+    withProgress({
+      n <- ncol(tData)
+      for(i in seq_along(2:n)) {
+        incProgress(1/(n - 1), 
+                    "Calculating...", 
+                    paste("working on", 
+                          names(tData)[i],
+                          "which is", 
+                          i - 1, "of", n - 1)
+                    )
+        newfit <- mix_dist(tData[[i + 1]], ps, 
+                           names(tData)[i + 1], comp_means = means)
+        output_list[[i]] <<- newfit
+      }
+    })
   })
   
-  # outputData <- eventReactive(input$goButton, {
-  #   if(!is.null(get_params())) {
-  # 
-  #     # fitData <- getFitData()
-  #     # if(!is.null(getFitData())) {
-  #     #   cat(str(fitData))
-  #     #   return(fitData)
-  #     # }
-  #   }
-  # })
-  
   output$longDataTable <- renderDataTable({
-    #outputData()
+    if(exists("output_list")) {
+      print("does output_list exist?")
+      print(exists("output_list"))
+      print(output_list)
+      output_df <- bind_rows(output_list)
+      print("output_df: ")
+      print(output_df)
+      # return(output_df)
+    }
   })
   
 })

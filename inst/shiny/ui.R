@@ -1,5 +1,5 @@
 library(shiny)
-source('global.R')
+source('../../R/granular.R')
 
 mastersizer_vis <- function(outputId) {
   HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"><svg width=500 height=500> </svg></div>", sep=""))
