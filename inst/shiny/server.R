@@ -89,7 +89,8 @@ shinyServer(function(input, output, session) {
         )
         newfit <- mix_dist(tData[[i + 1]], ps, 
                            names(tData)[i + 1], comp_means = means)
-        output_list[[i]] <<- newfit
+        output_list[[i]] <<- newfit[[1]]
+        output_df <<- bind_rows(output_list)
       }
     })
   })
