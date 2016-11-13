@@ -1,21 +1,23 @@
 library(shiny)
 library(tidyr)
 library(dplyr)
+library(scales)
 source('../../R/granular.R')
 
 shinyServer(function(input, output, session) {
   
   observe({
     if(input$goButton > 0){
+      print('1')
       session$sendCustomMessage("myCallbackHandler", "1")
     }
   })
-  
+
   getData <- reactive({
     inFile <- input$file
     if (is.null(inFile))
       return(NULL)
-
+    
     wideData <- read.csv(inFile$datapath)
     tData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = as.numeric(sub("X", "", size))) %>% 
@@ -29,12 +31,6 @@ shinyServer(function(input, output, session) {
       
     }
   })
-  
-  # observe({
-  #   if(!is.null(getData())) {
-  #     output_df <- bind_rows(output_list)
-  #   }
-  # })
   
   output$mastersizer <- reactive({
     getData()
@@ -72,7 +68,6 @@ shinyServer(function(input, output, session) {
     
     params <- list(range = list(min_val = min_val, max_val = max_val), 
                    peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
-    
     return(params)
   })
   
@@ -91,11 +86,10 @@ shinyServer(function(input, output, session) {
                           names(tData)[i],
                           "which is", 
                           i - 1, "of", n - 1)
-                    )
+        )
         newfit <- mix_dist(tData[[i + 1]], ps, 
                            names(tData)[i + 1], comp_means = means)
         output_list[[i]] <<- newfit
-        # output_df <<- bind_rows(output_list) 
       }
     })
   })
