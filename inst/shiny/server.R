@@ -26,14 +26,15 @@ shinyServer(function(input, output, session) {
   observe({
     if(!is.null(getData())) {
       output_list <<- vector("list", ncol(getData()) - 1)
+      
     }
   })
   
-  observe({
-    if(!is.null(getData())) {
-      output_df <- bind_rows(output_list)
-    }
-  })
+  # observe({
+  #   if(!is.null(getData())) {
+  #     output_df <- bind_rows(output_list)
+  #   }
+  # })
   
   output$mastersizer <- reactive({
     getData()
@@ -94,18 +95,19 @@ shinyServer(function(input, output, session) {
         newfit <- mix_dist(tData[[i + 1]], ps, 
                            names(tData)[i + 1], comp_means = means)
         output_list[[i]] <<- newfit
+        # output_df <<- bind_rows(output_list) 
       }
     })
   })
   
   output$longDataTable <- renderDataTable({
     if(exists("output_list")) {
-      print("does output_list exist?")
-      print(exists("output_list"))
-      print(output_list)
+      # print("does output_list exist?")
+      # print(exists("output_list"))
+      # print(output_list)
       output_df <- bind_rows(output_list)
-      print("output_df: ")
-      print(output_df)
+      # print("output_df: ")
+      # print(output_df)
       # return(output_df)
     }
   })
