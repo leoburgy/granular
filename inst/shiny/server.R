@@ -1,31 +1,21 @@
 library(shiny)
 library(tidyr)
 library(dplyr)
-library(scales)
-source('global.R')
+source('../../R/granular.R')
 
 shinyServer(function(input, output, session) {
   
   observe({
     if(input$goButton > 0){
-      print('1')
       session$sendCustomMessage("myCallbackHandler", "1")
     }
   })
-# observe({
-#   if(input$action1 > 0){
-#     print('2')
-#     session$sendCustomMessage("myCallbackHandler", "2")
-#   }
-# })
-
-    getData <- reactive({
+  
+  getData <- reactive({
     inFile <- input$file
     if (is.null(inFile))
       return(NULL)
-    # if (is.null(input$logOption))
-    #   return(NULL)
-    
+
     wideData <- read.csv(inFile$datapath)
     tData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = as.numeric(sub("X", "", size))) %>% 
@@ -33,12 +23,24 @@ shinyServer(function(input, output, session) {
     return(tData)
   })
   
+  observe({
+    if(!is.null(getData())) {
+      output_list <<- vector("list", ncol(getData()) - 1)
+      
+    }
+  })
+  
+  # observe({
+  #   if(!is.null(getData())) {
+  #     output_df <- bind_rows(output_list)
+  #   }
+  # })
+  
   output$mastersizer <- reactive({
     getData()
   })
   
   get_params <- reactive({
-    print("getting params again")
     min_val <- if(!is.null(input$min_val)) {
       input$min_val
     } else NULL
@@ -71,44 +73,43 @@ shinyServer(function(input, output, session) {
     params <- list(range = list(min_val = min_val, max_val = max_val), 
                    peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
     
-    print(params)
-    
-    print(params)
-    
     return(params)
-      
   })
   
-  output$params <- renderText({
-    params <- get_params()
-    paste("Min/max are: ", params[[1]], "\n",
-          "Peaks are: ", params[[2]])
-  })
-  
-  
-  getFitData <- reactive({
-    print("running getFitData")
+  observeEvent(input$goButton, {
     wideData <- getData()
     params <- get_params()
-    if(!is.null(getData())) {
-      ps <- wideData[, 1]
-      Dist <- wideData[, 2:ncol(wideData)]
-      eg.out <- mixDist(ps, Dist, comp_means = rev(unlist(params[[2]])))
-      eg.out
-    }
-  })
-  
-  outputData <- eventReactive(input$goButton, {
-    print("running outputData")
-    fitData <- getFitData()
-    if(!is.null(getFitData())) {
-      cat(str(fitData))
-      return(fitData)
-    }
+    means <- rev(unlist(params[[2]]))
+    tData <- getData()
+    ps <- tData[[1]]
+    withProgress({
+      n <- ncol(tData)
+      for(i in seq_along(2:n)) {
+        incProgress(1/(n - 1), 
+                    "Calculating...", 
+                    paste("working on", 
+                          names(tData)[i],
+                          "which is", 
+                          i - 1, "of", n - 1)
+                    )
+        newfit <- mix_dist(tData[[i + 1]], ps, 
+                           names(tData)[i + 1], comp_means = means)
+        output_list[[i]] <<- newfit
+        # output_df <<- bind_rows(output_list) 
+      }
+    })
   })
   
   output$longDataTable <- renderDataTable({
-    outputData()
+    if(exists("output_list")) {
+      # print("does output_list exist?")
+      # print(exists("output_list"))
+      # print(output_list)
+      output_df <- bind_rows(output_list)
+      # print("output_df: ")
+      # print(output_df)
+      # return(output_df)
+    }
   })
   
 })

@@ -1,0 +1,5 @@
+Dist <- readRDS("../test_data/tripleMastersizer.RDS")
+ms1 <- readRDS("../test_data/mastersizer_1.RDS")
+ms2 <- readRDS("../test_data/mastersizer_2.RDS")
+ms3 <- readRDS("../test_data/mastersizer_3.RDS")
+means <- c(C = 1, B = 5, A = 22)

@@ -1,6 +1,5 @@
 library(shiny)
-library(ggvis)
-source('global.R')
+source('../../R/granular.R')
 
 mastersizer_vis <- function(outputId) {
   HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"><svg width=500 height=500> </svg></div>", sep=""))
@@ -31,8 +30,7 @@ shinyUI(fluidPage(
                      tags$div(class = 'row-fluid',
                               fileInput('file', 'Choose CSV file', accept=c('text/csv', 
                                                                             'text/comma-separated-values,text/plain', 
-                                                                            '.csv'))),
-                     textOutput("params")
+                                                                            '.csv')))
                      )
   ),
   actionButton("goButton", "Go!"),

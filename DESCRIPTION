@@ -1,0 +1,21 @@
+Package: granular
+Title: Resolving starch granule distributions
+Version: 0.0.0.1
+Authors@R: c(
+    person("Alex", "Whan", , "alexwhan@gmail.com", c("aut", "cre")),
+    person("Emi", "Tanaka", , "etanaka@uow.edu.au", "aut")
+    )
+Description: Work out distributions.
+License: GPL-3 | file LICENSE
+LazyData: true
+Imports:
+    mixdist (>= 0.5),
+    shiny (>= 0.13.2),
+    dplyr (>= 0.4.3),
+    tidyr (>= 0.6.0),
+    purrr (>= 0.2.2)
+Suggests:
+    testthat
+URL: https://github.com/csiro-crop-informatics/granular
+BugReports: https://github.com/csiro-crop-informatics/granular/issues
+RoxygenNote: 5.0.1
