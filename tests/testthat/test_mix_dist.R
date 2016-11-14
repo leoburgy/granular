@@ -1,17 +1,14 @@
 library(granular)
 context("mix_dist")
 
-Dist <- readRDS("../test_data/tripleMastersizer.RDS")
-ms1 <- readRDS("../test_data/mastersizer_1.RDS")
-ms2 <- readRDS("../test_data/mastersizer_2.RDS")
-ms3 <- readRDS("../test_data/mastersizer_3.RDS")
+data(package = 'granular')
 means <- c(C = 1, B = 5, A = 22)
 
 test_that("mix_dist is behaving", {
-  expect_equal(mix_dist(Dist[[2]], Dist[[1]], means, names(Dist)[2]), 
-               ms1)
-  expect_equal(mix_dist(Dist[[3]], Dist[[1]], means, names(Dist)[3]), 
-               ms2)
-  expect_equal(mix_dist(Dist[[4]], Dist[[1]], means, names(Dist)[4]), 
-               ms3)
+  expect_equal(mix_dist(Dist[[2]], Dist[[1]], means, names(Dist)[2])[[1]], 
+               ms1, tolerance = 1e-05)
+  expect_equal(mix_dist(Dist[[3]], Dist[[1]], means, names(Dist)[3])[[1]], 
+               ms2, tolerance = 1e-05)
+  expect_equal(mix_dist(Dist[[4]], Dist[[1]], means, names(Dist)[4])[[1]], 
+               ms3, tolerance = 1e-05)
 })
