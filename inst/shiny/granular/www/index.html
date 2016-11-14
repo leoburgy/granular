@@ -18,6 +18,7 @@
     },
     renderValue: function(el, data) {
     	if(!data) return;
+    	d3.selectAll(".svg-container").remove();
     	// mydata = data;
     	d3.select("div#mastersizer")
 	   .append("div")
