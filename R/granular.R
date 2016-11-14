@@ -6,8 +6,6 @@
 #' @param means A named numeric vector defining the means (center) for each peak 
 #'
 #' @return A named vector with heights for each mean
-#'
-#' @examples
 get_heights <- function(dist, ps, means) {
   if(!is.numeric(dist)) stop("dist is not numeric")
   if(!is.numeric(ps)) stop("ps is not numeric")
