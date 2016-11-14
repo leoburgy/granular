@@ -1,12 +1,12 @@
 library(shiny)
-source('../../R/granular.R')
+library(shinyjs)
 
 mastersizer_vis <- function(outputId) {
   HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"><svg width=500 height=500> </svg></div>", sep=""))
 }
 
 shinyUI(fluidPage(
-  
+  useShinyjs(),
   tags$head(
     tags$script(src="//d3js.org/d3.v4.js"),
     tags$link(rel = 'stylesheet', type = 'text/css', href = 'custom.css'),
@@ -30,8 +30,12 @@ shinyUI(fluidPage(
                      tags$div(class = 'row-fluid',
                               fileInput('file', 'Choose CSV file', accept=c('text/csv', 
                                                                             'text/comma-separated-values,text/plain', 
-                                                                            '.csv')))
-                     )
+                                                                            '.csv'))),
+                       tags$div(class = 'row-fluid',
+                                selectInput("select_data", "Select data", c("Single sample", "Three samples", "Thirty-six samples"))),
+                     tags$div(class = 'row-fluid',
+                              checkboxInput('use_example', 'Use example data'))
+           )
   ),
   actionButton("goButton", "Go!"),
   

@@ -2,7 +2,8 @@ library(shiny)
 library(tidyr)
 library(dplyr)
 library(scales)
-source('../../R/granular.R')
+library(shinyjs)
+# source('../../R/granular.R')
 
 shinyServer(function(input, output, session) {
   
@@ -13,6 +14,11 @@ shinyServer(function(input, output, session) {
     }
   })
 
+  observe({
+    toggle('select_data', condition = input$use_example)
+    toggle('file', condition = !input$use_example)
+  })
+  
   getData <- reactive({
     inFile <- input$file
     if (is.null(inFile))
@@ -83,11 +89,11 @@ shinyServer(function(input, output, session) {
         incProgress(1/(n - 1), 
                     "Calculating...", 
                     paste("working on", 
-                          names(tData)[i],
+                          names(tData)[i + 1],
                           "which is", 
-                          i - 1, "of", n - 1)
+                          i, "of", n - 1)
         )
-        newfit <- mix_dist(tData[[i + 1]], ps, 
+        newfit <- granular::mix_dist(tData[[i + 1]], ps, 
                            names(tData)[i + 1], comp_means = means)
         output_list[[i]] <<- newfit[[1]]
         output_df <<- bind_rows(output_list)
