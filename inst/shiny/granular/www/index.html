@@ -37,15 +37,11 @@
 
 
 function drawGraph(data){
-	// var data = mydata;
-  	console.log(data);
-  	// console.log("I am here");
-  	// var container = d3.select("#mastersizer");
-  	// console.log(container);
+ 	//console.log(data);
+ 	console.log(samples);
   	svg = d3.select("svg")
-  	svg.selectAll("*").remove();
-  	// svg.attr("width", container.node().getBoundingClientRect().width);
-  	// svg.attr("height", 500);
+  		svg.selectAll("#sample").remove();
+
 	margin = {top: 20, right: 80, bottom: 30, left: 50};
 	console.log(svg.node().getBoundingClientRect());
 
@@ -86,6 +82,8 @@ function drawGraph(data){
 
 	var size = data.size;
 	
+	samples.length = 0;
+
 	for(xx in data){
 		if(xx=="size") continue;
 		var myobj = {id: xx, values: []}
@@ -138,6 +136,7 @@ function drawGraph(data){
 		.attr("d", function(d) { return line(d.values); })
 		.style("stroke", function(d) { return z(d.id); });
 
+	
 	// Add mouseover events.
 	d3.select("svg").on("mousemove", function() {
 		var mouse_x = d3.mouse(this)[0];
