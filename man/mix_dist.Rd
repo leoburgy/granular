@@ -4,7 +4,7 @@
 \alias{mix_dist}
 \title{use mix() to estimate underlying distributions}
 \usage{
-mix_dist(dist, ps, comp_means, printFit = TRUE, printPlot = TRUE,
+mix_dist(dist, ps, comp_means, dist_name, printFit = TRUE, printPlot = TRUE,
   emnum = 5)
 }
 \arguments{
@@ -13,6 +13,8 @@ mix_dist(dist, ps, comp_means, printFit = TRUE, printPlot = TRUE,
 \item{ps}{A numeric vector describing the granule sizes}
 
 \item{comp_means}{A named numeric vector defining the means (center) for each peak}
+
+\item{dist_name}{A string defining the name of the distribution}
 
 \item{printFit}{Logical. Whether or not to print the fir output to the console}
 
