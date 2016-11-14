@@ -23,6 +23,7 @@ get_heights <- function(dist, ps, means) {
 #' @param dist A numeric vector defining the distribution
 #' @param ps A numeric vector describing the granule sizes
 #' @param comp_means A named numeric vector defining the means (center) for each peak
+#' @param dist_name A string defining the name of the distribution
 #' @param printFit Logical. Whether or not to print the fir output to the console
 #' @param printPlot Logical. Whether or not to print the plot showing the fit
 #' @param emnum passed to mix() - A non-negative integer specifying the number of EM steps to be performed
@@ -79,8 +80,8 @@ mix_dist <- function(dist,
                 ))
     print(mixFit)
   }
-  line <- rep(dist_name, ncomp)
-  theFit <- cbind(line, peak = names(comp_means), mixFit$parameters, mixFit$se)
+  sample <- rep(dist_name, ncomp)
+  theFit <- cbind(sample, peak = names(comp_means), mixFit$parameters, mixFit$se)
   return(list(theFit, mixFit))		
 }
 
