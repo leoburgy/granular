@@ -17,17 +17,41 @@ shinyServer(function(input, output, session) {
   observe({
     toggle('select_data', condition = input$use_example)
     toggle('file', condition = !input$use_example)
+    toggle('download_example', condition = input$use_example)
+  })
+  
+  output$download_example <- downloadHandler(
+    filename = switch(input$select_data,
+                      "Single sample" = "singleMastersizer.csv",
+                      "Three samples" = "tripleMastersizer.csv",
+                      "Thirty-six samples" = "extdata/fullMastersizer.csv"),
+    content = function(file) {
+      write.csv(read.csv(example_file(), check.names = FALSE), file, row.names = FALSE)
+    }
+  )
+  
+  example_file <- reactive({
+    switch(input$select_data,
+           "Single sample" = "../../extdata/singleMastersizer.csv",
+           "Three samples" = "../../extdata/tripleMastersizer.csv",
+           "Thirty-six samples" = "../../extdata/fullMastersizer.csv")
   })
   
   getData <- reactive({
-    inFile <- input$file
-    if (is.null(inFile))
-      return(NULL)
+    if(!input$use_example) {
+      inFile <- input$file$datapath
+    } else {
+      print(input$select_data)
+      inFile <- example_file()
+    }
     
-    wideData <- read.csv(inFile$datapath)
+    if(is.null(inFile)) return(NULL)
+    
+    wideData <- read.csv(inFile)
     tData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = as.numeric(sub("X", "", size))) %>% 
       spread(sample, proportion)
+    print(paste(dim(tData)))
     return(tData)
   })
   

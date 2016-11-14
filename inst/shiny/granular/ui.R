@@ -34,7 +34,9 @@ shinyUI(fluidPage(
                        tags$div(class = 'row-fluid',
                                 selectInput("select_data", "Select data", c("Single sample", "Three samples", "Thirty-six samples"))),
                      tags$div(class = 'row-fluid',
-                              checkboxInput('use_example', 'Use example data'))
+                              checkboxInput('use_example', 'Use example data')),
+                     tags$div(class = 'row-fluid',
+                              downloadLink('download_example', "Download example data"))
            )
   ),
   actionButton("goButton", "Go!"),
