@@ -100,7 +100,7 @@ shinyServer(function(input, output, session) {
       # print("does output_list exist?")
       # print(exists("output_list"))
       # print(output_list)
-      output_df <- bind_rows(output_list)
+      output_df# <- bind_rows(output_list)
       # print("output_df: ")
       # print(output_df)
       # return(output_df)
