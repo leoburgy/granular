@@ -52,7 +52,7 @@ text {
   }
 
   .axis--x path {
-    display: none;
+    /* display: none; */
   }
 
   .line {
@@ -68,6 +68,8 @@ text {
     padding-bottom: 100%; /* aspect ratio */
     vertical-align: top;
     overflow: hidden;
+    width: 600px;
+    height: 400px;
 }
 .svg-content-responsive {
     display: inline-block;
