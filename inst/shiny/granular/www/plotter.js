@@ -38,7 +38,7 @@
 				this.line = d3.line().curve(d3.curveBasis)
 					.x( (function(d) { return this.x(d.psize) < this.margin.left ? null : this.x(d.psize); }).bind(this))
 					.y( (function(d) { return this.y(d.frequency); }).bind(this));
-				this.xAxis = d3.axisBottom(this.x).ticks(5).tickFormat(d3.formatPrefix(".1", 1e1)); 
+				this.xAxis = d3.axisBottom(this.x).ticks(10, ".1f"); 
 				this.yAxis = d3.axisRight(this.y);
 
 				this.initalised = true;
