@@ -3,21 +3,32 @@ library(tidyr)
 library(dplyr)
 library(scales)
 library(shinyjs)
-# source('../../R/granular.R')
+ source('../../../R/granular.R')
 
 shinyServer(function(input, output, session) {
   
-  observe({
-    if(input$goButton > 0){
-      print('1')
-      session$sendCustomMessage("myCallbackHandler", "1")
-    }
-  })
+  # observe({
+  #   if(input$goButton > 0){
+  #     print('1')
+  #     session$sendCustomMessage("myCallbackHandler", "1")
+  #   }
+  # })
 
   observe({
     toggle('select_data', condition = input$use_example)
     toggle('file', condition = !input$use_example)
     toggle('download_example', condition = input$use_example)
+    params <- get_params()
+    
+    #Set class toggle for instruction text
+    toggleClass('step1', "instgrey", !is.null(getData()))
+    toggleClass('step2', "instgrey", (is.null(getData()) | !any(as.logical(lapply(params[[1]], is.null)))))
+    toggleClass('step3', "instgrey", (any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
+    print(all(!as.logical(lapply(params[[2]], is.null))))
+    
+    #Set toggle for the go button
+    toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
+    
   })
   
   output$download_example <- downloadHandler(

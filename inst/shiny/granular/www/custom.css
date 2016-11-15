@@ -21,6 +21,14 @@ text {
   fill: black;
 }
 
+  .inst {
+    font-size: 18px;
+  }
+  .instgrey {
+    color: grey;
+    font-size: 12px;
+  }
+
   .hover-line { 
     stroke: black;  
     fill: none;
