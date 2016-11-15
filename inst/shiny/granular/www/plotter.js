@@ -29,8 +29,6 @@
 			gY: 			null,
 			init: function(){
 				if(this.initialised) return;
-				// this.width = this.width - this.margin.left - this.margin.right;
- 				// this.height = this.height - this.margin.top - this.margin.bottom;
 				this.brush = d3.brushX().extent([[0, 0], [this.width + this.margin.left + this.margin.right, this.height + this.margin.top + this.margin.bottom]])
 					.on("end", this.brushended.bind(this));
 				this.x = d3.scaleLog().range([0, this.width]);
@@ -117,7 +115,6 @@
 						.append("line")
 						.attr("x1", mouse_x).attr("x2", mouse_x) 
 						.attr("y1", that.margin.top/2).attr("y2", that.height + that.margin.top/2 + that.margin.bottom/2); 
-						// .attr("y1", 0).attr("y2", that.height); 
 
 					var text = lineGroup.append('text')
 					.attr("class", "hover-text")
@@ -139,10 +136,8 @@
 				var s = d3.event.selection;
 
 				if (!s) {
-					console.log("not s");
 					return;
 				} else {
-					console.log("yes s:" + s+ " scale "+ this.width / (s[1] - s[0]));
 					this.x.domain([s[0] - this.margin.left, s[1] - this.margin.left ].map(this.x.invert, this.x));
 					this.lines.min = this.x0.invert(s[0]);
 					this.lines.max = this.x0.invert(s[1]);
@@ -153,13 +148,6 @@
 				}
 				this.lines.brushed = true;
 				this.zoom();
-			},
-			brushing: function(){
-				if(this.lines.brushed) return;
-				var mouse_x = d3.mouse(this)[0];
-				var graph_x = Math.round(that.x.invert(mouse_x - that.margin.left)*100)/100;
-				console.log(graph_x);
-
 			},
 			zoom: function () {
 				var t = this.svg.transition().duration(750);
@@ -179,8 +167,6 @@
 					.append("div")
 					.classed("svg-container", true) //container class to make it responsive
 					.append("svg");
-					//.attr("width", this.width + this.margin.left + this.margin.right)
-    				//.attr("height", this.height + this.margin.top + this.margin.bottom);
 				//responsive SVG needs these 2 attributes and no width and height attr
 				this.svg.attr("preserveAspectRatio", "xMinYMin meet")
 					//class to make it responsive
