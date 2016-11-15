@@ -32,10 +32,9 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$restartButton, {
-    if(exists("params")) {
-      params <- lapply(params, function(x) lapply(x, function(y) y <- NULL))
-    }
+    
     reset("sidePanel")
+    #print(params)
   })
   
   output$download_example <- downloadHandler(
@@ -117,6 +116,12 @@ shinyServer(function(input, output, session) {
     
     params <- list(range = list(min_val = min_val, max_val = max_val), 
                    peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
+    
+    observeEvent(input$resetButton, {
+      if(!is.null(get_params())) {
+        params <- lapply(params, function(x) lapply(x, function(y) y <- NULL))
+      }
+    })
     return(params)
   })
   
