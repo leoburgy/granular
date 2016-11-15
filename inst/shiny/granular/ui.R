@@ -9,17 +9,18 @@ shinyUI(fluidPage(
   useShinyjs(),
   tags$head(
     tags$script(src="//d3js.org/d3.v4.js"),
-    tags$link(rel = 'stylesheet', type = 'text/css', href = 'custom.css'),
-    tags$script('Shiny.addCustomMessageHandler("myCallbackHandler",
-                  function(typeMessage) {console.log(typeMessage)
-                    if(typeMessage == 1){
-                          console.log("got here");
-                          $("a:contains(Selected Data)").click();
-                          }
-                    if(typeMessage == 2){
-                          $("a:contains(Selected Data)").click();
-                          }
-                          });')),
+    tags$link(rel = 'stylesheet', type = 'text/css', href = 'custom.css')#,
+    # tags$script('Shiny.addCustomMessageHandler("myCallbackHandler",
+    #               function(typeMessage) {console.log(typeMessage)
+    #                 if(typeMessage == 1){
+    #                       console.log("got here");
+    #                       $("a:contains(Selected Data)").click();
+    #                       }
+    #                 if(typeMessage == 2){
+    #                       $("a:contains(Selected Data)").click();
+    #                       }
+    #                       });')
+    ),
   
   # Application title
   titlePanel("Starch Granule Mixture Classification"),
@@ -31,18 +32,22 @@ shinyUI(fluidPage(
                               fileInput('file', 'Choose CSV file', accept=c('text/csv', 
                                                                             'text/comma-separated-values,text/plain', 
                                                                             '.csv'))),
-                       tags$div(class = 'row-fluid',
-                                selectInput("select_data", "Select data", c("Single sample", "Three samples", "Thirty-six samples"))),
+                     tags$div(class = 'row-fluid',
+                              selectInput("select_data", "Select data", c("Single sample", "Three samples", "Thirty-six samples"))),
                      tags$div(class = 'row-fluid',
                               checkboxInput('use_example', 'Use example data')),
                      tags$div(class = 'row-fluid',
                               downloadLink('download_example', "Download example data"))
+                     ),
+           tags$form(id = 'guide', class = 'well',
+                     tags$div(h4("Guide:"), 
+                              p(id = "step1", class = "inst", "1. Select Data"),
+                              p(id = "step2", class = "inst", "2. Click and drag on the plot to identify the area with true peaks"),
+                              p(id = "step3", class = "inst", "3. Click to identify peaks")),
+                     actionButton("goButton", "4. Process Data", width = '100%')
            )
   ),
-  actionButton("goButton", "Go!"),
-  
   mainPanel(
-    
     #tabsetPanel for logic flow
     tabsetPanel(
       
@@ -51,13 +56,16 @@ shinyUI(fluidPage(
         "Initial inspection",
         # includeHTML("www/index.html"),
         mastersizer_vis("mastersizer")
-        #ggvisOutput("p2")
-        #         ,
-        #         uiOutput("p_ui")
+        ),
+      tabPanel(
+        "Output data",
+        shiny::dataTableOutput("longDataTable")
       ),
       tabPanel(
-        "Selected Data",
-        shiny::dataTableOutput("longDataTable")
+        "Summary statistics"
+      ),
+      tabPanel(
+        "Plots"
       )
     ),
     tags$script(src="plotter.js")
