@@ -1,5 +1,3 @@
-  <script>
-// var parseTime = d3.timeParse("%Y%m%d");
 	(function(){
 
 		var networkOutputBinding = new Shiny.OutputBinding();
@@ -226,5 +224,3 @@
 		})
 		Shiny.outputBindings.register(networkOutputBinding, 'alexwhan.networkbinding');
 	}());
-
-</script>
