@@ -49,7 +49,7 @@ shinyUI(fluidPage(
       #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
       tabPanel(
         "Initial inspection",
-        includeHTML("www/index.html"),
+        # includeHTML("www/index.html"),
         mastersizer_vis("mastersizer")
         #ggvisOutput("p2")
         #         ,
@@ -59,7 +59,8 @@ shinyUI(fluidPage(
         "Selected Data",
         shiny::dataTableOutput("longDataTable")
       )
-    )
+    ),
+    tags$script(src="plotter.js")
   )
 ))
 
