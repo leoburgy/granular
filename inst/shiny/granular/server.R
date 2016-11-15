@@ -24,11 +24,18 @@ shinyServer(function(input, output, session) {
     toggleClass('step1', "instgrey", !is.null(getData()))
     toggleClass('step2', "instgrey", (is.null(getData()) | !any(as.logical(lapply(params[[1]], is.null)))))
     toggleClass('step3', "instgrey", (any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
-    print(all(!as.logical(lapply(params[[2]], is.null))))
+    #print(all(!as.logical(lapply(params[[2]], is.null))))
     
     #Set toggle for the go button
     toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
     
+  })
+  
+  observeEvent(input$restartButton, {
+    if(exists("params")) {
+      params <- lapply(params, function(x) lapply(x, function(y) y <- NULL))
+    }
+    reset("sidePanel")
   })
   
   output$download_example <- downloadHandler(
@@ -49,6 +56,7 @@ shinyServer(function(input, output, session) {
   })
   
   getData <- reactive({
+    input$restartButton
     if(!input$use_example) {
       inFile <- input$file$datapath
     } else {
@@ -69,7 +77,7 @@ shinyServer(function(input, output, session) {
   observe({
     if(!is.null(getData())) {
       output_list <<- vector("list", ncol(getData()) - 1)
-      
+      print(output_list)
     }
   })
   
