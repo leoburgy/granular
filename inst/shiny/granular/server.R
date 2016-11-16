@@ -7,13 +7,6 @@ library(shinyjs)
 
 shinyServer(function(input, output, session) {
   
-  # observe({
-  #   if(input$goButton > 0){
-  #     print('1')
-  #     session$sendCustomMessage("myCallbackHandler", "1")
-  #   }
-  # })
-
   observe({
     toggle('select_data', condition = input$use_example)
     toggle('file', condition = !input$use_example)
@@ -66,13 +59,6 @@ shinyServer(function(input, output, session) {
     return(tData)
   })
   
-  observe({
-    if(!is.null(getData())) {
-      output_list <<- vector("list", ncol(getData()) - 1)
-      
-    }
-  })
-  
   output$mastersizer <- reactive({
     getData()
   })
@@ -112,8 +98,29 @@ shinyServer(function(input, output, session) {
     return(params)
   })
   
+  filteredData <- reactive({
+    if(is.null(get_params()[[1]][[1]])) {
+      return(NULL)
+    } else {
+      print('got here')
+      params <- get_params()
+      tData <- getData()
+      params <- get_params()
+      
+      outData <- tData %>%
+        gather(sample, proportion, -size) %>%
+        filter(size > params[[1]][[1]],
+               size < params[[1]][[2]]) %>%
+        spread(sample, proportion)
+      print(outData)
+      return(outData)
+    }
+  })
+  
+  observe({filteredData()})
+  
   observeEvent(input$goButton, {
-    wideData <- getData()
+    wideData <- filteredData()
     params <- get_params()
     means <- rev(unlist(params[[2]]))
     tData <- getData()
@@ -132,20 +139,10 @@ shinyServer(function(input, output, session) {
                            names(tData)[i + 1], comp_means = means)
         output_list[[i]] <<- newfit[[1]]
         output_df <<- bind_rows(output_list)
+        output$longDataTable <- renderDataTable({
+          bind_rows(output_list)
+        })
       }
     })
   })
-  
-  output$longDataTable <- renderDataTable({
-    if(exists("output_list")) {
-      # print("does output_list exist?")
-      # print(exists("output_list"))
-      # print(output_list)
-      output_df# <- bind_rows(output_list)
-      # print("output_df: ")
-      # print(output_df)
-      # return(output_df)
-    }
-  })
-  
 })
