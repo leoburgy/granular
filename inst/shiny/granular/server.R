@@ -17,7 +17,6 @@ shinyServer(function(input, output, session) {
     toggleClass('step1', "instgrey", !is.null(getData()))
     toggleClass('step2', "instgrey", (is.null(getData()) | !any(as.logical(lapply(params[[1]], is.null)))))
     toggleClass('step3', "instgrey", (any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
-    print(all(!as.logical(lapply(params[[2]], is.null))))
     
     #Set toggle for the go button
     toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
@@ -45,7 +44,6 @@ shinyServer(function(input, output, session) {
     if(!input$use_example) {
       inFile <- input$file$datapath
     } else {
-      print(input$select_data)
       inFile <- example_file()
     }
     
@@ -55,7 +53,6 @@ shinyServer(function(input, output, session) {
     tData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = as.numeric(sub("X", "", size))) %>% 
       spread(sample, proportion)
-    print(paste(dim(tData)))
     return(tData)
   })
   
@@ -102,7 +99,6 @@ shinyServer(function(input, output, session) {
     if(is.null(get_params()[[1]][[1]])) {
       return(NULL)
     } else {
-      print('got here')
       params <- get_params()
       tData <- getData()
       params <- get_params()
@@ -112,7 +108,6 @@ shinyServer(function(input, output, session) {
         filter(size > params[[1]][[1]],
                size < params[[1]][[2]]) %>%
         spread(sample, proportion)
-      print(outData)
       return(outData)
     }
   })
