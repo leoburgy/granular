@@ -40,7 +40,7 @@ shinyServer(function(input, output, session) {
            "Thirty-six samples" = "../../extdata/fullMastersizer.csv")
   })
   
-  getData <- reactive({
+  getFile <- reactive({
     if(!input$use_example) {
       inFile <- input$file$datapath
     } else {
@@ -48,7 +48,12 @@ shinyServer(function(input, output, session) {
     }
     
     if(is.null(inFile)) return(NULL)
-    
+    return(inFile)
+  })
+  
+  getData <- reactive({
+    inFile <- getFile()
+    if(is.null(inFile)) return(NULL)
     wideData <- read.csv(inFile)
     tData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = as.numeric(sub("X", "", size))) %>% 
@@ -140,4 +145,11 @@ shinyServer(function(input, output, session) {
       }
     })
   })
+  
+  output$downloadPlot <- downloadHandler(
+    filename = function() { paste(input$dataset, '.png', sep='') },
+    content = function(file) {
+      ggsave(file, plot = plotInput(), device = "png")
+    }
+  )
 })
