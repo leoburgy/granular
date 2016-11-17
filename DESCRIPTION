@@ -11,14 +11,15 @@ LazyData: true
 Depends:
     R (>= 3.0.1)
 Imports:
-    mixdist (>= 0.5)
-Suggests:
-    testthat,
-    ggplot2(>= 1.0.0),
+    mixdist (>= 0.5),
+    magrittr(>= 1.0.0),
     shiny (>= 0.13.2),
     dplyr (>= 0.4.3),
     tidyr (>= 0.4.0),
-    purrr (>= 0.2.1)
+    purrr (>= 0.2.1),
+    ggplot2 (>= 1.0.0)
+Suggests:
+    testthat
 URL: https://github.com/csiro-crop-informatics/granular
 BugReports: https://github.com/csiro-crop-informatics/granular/issues
 RoxygenNote: 5.0.1
