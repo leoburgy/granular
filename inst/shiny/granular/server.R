@@ -17,10 +17,16 @@ shinyServer(function(input, output, session) {
     toggleClass('step1', "instgrey", !is.null(getData()))
     toggleClass('step2', "instgrey", (is.null(getData()) | !any(as.logical(lapply(params[[1]], is.null)))))
     toggleClass('step3', "instgrey", (any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
-    
+
     #Set toggle for the go button
     toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
     
+  })
+  
+  observeEvent(input$restartButton, {
+    
+    reset("sidePanel")
+    #print(params)
   })
   
   output$download_example <- downloadHandler(
@@ -41,6 +47,7 @@ shinyServer(function(input, output, session) {
   })
   
   getFile <- reactive({
+    input$restartButton
     if(!input$use_example) {
       inFile <- input$file$datapath
     } else {
@@ -97,6 +104,12 @@ shinyServer(function(input, output, session) {
     
     params <- list(range = list(min_val = min_val, max_val = max_val), 
                    peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
+    
+    observeEvent(input$resetButton, {
+      if(!is.null(get_params())) {
+        params <- lapply(params, function(x) lapply(x, function(y) y <- NULL))
+      }
+    })
     return(params)
   })
   
@@ -125,10 +138,11 @@ shinyServer(function(input, output, session) {
     means <- rev(unlist(params[[2]]))
     tData <- getData()
     ps <- tData[[1]]
+    output_list <- vector("list", ncol(getData()) - 1)
     withProgress({
       n <- ncol(tData)
       for(i in seq_along(2:n)) {
-        incProgress(1/(n - 1), 
+        incProgress(1/n, 
                     "Calculating...", 
                     paste("working on", 
                           names(tData)[i + 1],
@@ -137,19 +151,10 @@ shinyServer(function(input, output, session) {
         )
         newfit <- granular::mix_dist(tData[[i + 1]], ps, 
                            names(tData)[i + 1], comp_means = means)
-        output_list[[i]] <<- newfit[[1]]
-        output_df <<- bind_rows(output_list)
-        output$longDataTable <- renderDataTable({
-          bind_rows(output_list)
-        })
+        output_list[[i]] <- newfit[[1]]
+        output_df <- bind_rows(output_list)
+        output$longDataTable <- renderDataTable({output_df})
       }
     })
   })
-  
-  output$downloadPlot <- downloadHandler(
-    filename = function() { paste(input$dataset, '.png', sep='') },
-    content = function(file) {
-      ggsave(file, plot = plotInput(), device = "png")
-    }
-  )
 })
