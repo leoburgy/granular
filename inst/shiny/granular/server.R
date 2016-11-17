@@ -73,13 +73,6 @@ shinyServer(function(input, output, session) {
     return(tData)
   })
   
-  observe({
-    if(!is.null(getData())) {
-      output_list <<- vector("list", ncol(getData()) - 1)
-      print(output_list)
-    }
-  })
-  
   output$mastersizer <- reactive({
     getData()
   })
@@ -131,10 +124,11 @@ shinyServer(function(input, output, session) {
     means <- rev(unlist(params[[2]]))
     tData <- getData()
     ps <- tData[[1]]
+    output_list <- vector("list", ncol(getData()) - 1)
     withProgress({
       n <- ncol(tData)
       for(i in seq_along(2:n)) {
-        incProgress(1/(n - 1), 
+        incProgress(1/n, 
                     "Calculating...", 
                     paste("working on", 
                           names(tData)[i + 1],
@@ -143,22 +137,10 @@ shinyServer(function(input, output, session) {
         )
         newfit <- granular::mix_dist(tData[[i + 1]], ps, 
                            names(tData)[i + 1], comp_means = means)
-        output_list[[i]] <<- newfit[[1]]
-        output_df <<- bind_rows(output_list)
+        output_list[[i]] <- newfit[[1]]
+        output_df <- bind_rows(output_list)
+        output$longDataTable <- renderDataTable({output_df})
       }
     })
   })
-  
-  output$longDataTable <- renderDataTable({
-    if(exists("output_list")) {
-      # print("does output_list exist?")
-      # print(exists("output_list"))
-      # print(output_list)
-      output_df# <- bind_rows(output_list)
-      # print("output_df: ")
-      # print(output_df)
-      # return(output_df)
-    }
-  })
-  
 })
