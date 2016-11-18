@@ -14,8 +14,9 @@ ggfit <- function(fit_output, dist, ps) {
   df <- data.frame(ps, fit_dist, dist) %>% 
     dplyr::mutate(log_ps = log(ps),
                   step_breaks = 
-                    (log_ps + stats::lag(log_ps)) / 2)
+                    (log_ps + dplyr::lag(log_ps)) / 2)
   
+  print(df)
   plot_out <- ggplot2::ggplot(df) +
     ggplot2::geom_step(ggplot2::aes(x = step_breaks, y = dist),
                        size = 1) +

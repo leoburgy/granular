@@ -3,6 +3,7 @@ library(tidyr)
 library(dplyr)
 library(scales)
 library(shinyjs)
+library(ggplot2)
  source('../../../R/granular.R')
 
 shinyServer(function(input, output, session) {
@@ -138,10 +139,13 @@ shinyServer(function(input, output, session) {
     means <- rev(unlist(params[[2]]))
     tData <- getData()
     ps <- tData[[1]]
-    output_list <- vector("list", ncol(getData()) - 1)
+    n <- ncol(tData)
+    print(paste("n:", n))
+    output_list <- vector("list", n - 1)
+    output_plots <- vector("list", n - 1)
     withProgress({
-      n <- ncol(tData)
-      for(i in seq_along(2:n)) {
+      for(i in seq_len(n - 1)) {
+        print(paste("i:", i))
         incProgress(1/n, 
                     "Calculating...", 
                     paste("working on", 
@@ -154,14 +158,21 @@ shinyServer(function(input, output, session) {
         output_list[[i]] <- newfit[[1]]
         output_df <- bind_rows(output_list)
         output$longDataTable <- renderDataTable({output_df})
+        plot_filename <- paste0(names(tData)[i + 1], ".png")
+        ggsave(plot_filename, granular:::ggfit(newfit[[1]], 
+                                               tData[[i + 1]],
+                                               ps), 
+               device = "png")
       }
     })
+    # output$downloadPlot <- downloadHandler(
+    #   for(i in seq_along(output_list))
+    #   filename = function() { paste(getFile(), '.png', sep='') },
+    #   content = function(file) {
+    #     ggsave(file, plot = plotInput(), device = "png")
+    #   }
+    # )
   })
   
-  output$downloadPlot <- downloadHandler(
-    filename = function() { paste(getFile(), '.png', sep='') },
-    content = function(file) {
-      ggsave(file, plot = plotInput(), device = "png")
-    }
-  )
+  
 })
