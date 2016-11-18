@@ -68,7 +68,9 @@ shinyUI(fluidPage(
       ),
       tabPanel(
         "Plots",
-        downloadButton("downloadPlot", "Download all plots as zip")
+        div(class = "center-button",
+            downloadButton("downloadPlot", "Download all fit plots as zip", class = "center-button")
+        )
       )
     ),
     tags$script(src="plotter.js")

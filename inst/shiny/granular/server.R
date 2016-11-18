@@ -156,23 +156,26 @@ shinyServer(function(input, output, session) {
                            names(tData)[i + 1], comp_means = means)
         output_list[[i]] <- newfit[[1]]
         output_df <- bind_rows(output_list)
-        output$longDataTable <- renderDataTable({output_df})
-        plot_filename <- paste0(names(tData)[i + 1], ".png")
-        ggsave(plot_filename, granular:::ggfit(newfit[[1]], 
-                                               tData[[i + 1]],
-                                               ps, 
-                                               title = names(tData)[i + 1]), 
-               device = "png",
-               width = 6, height = 6)
+        output_plots[[i]] <- paste0(names(tData)[i + 1], ".png")
       }
+      output$longDataTable <- renderDataTable({output_df})
+      output$downloadPlot <- downloadHandler(
+        filename = "granular_plots.zip",
+        content = function(file) {
+          tmpdir <- tempdir()
+          for(i in seq_len(length(output_list))) {
+            ggsave(paste0(tmpdir, "/", output_plots[[i]]), 
+                   granular:::ggfit(newfit[[1]], 
+                                    tData[[i + 1]],
+                                    ps, 
+                                    title = names(tData)[i + 1]), 
+                   device = "png",
+                   width = 6, height = 6)
+          }
+          zip(file, unlist(output_plots))
+        }
+      )
     })
-    # output$downloadPlot <- downloadHandler(
-    #   for(i in seq_along(output_list))
-    #   filename = function() { paste(getFile(), '.png', sep='') },
-    #   content = function(file) {
-    #     ggsave(file, plot = plotInput(), device = "png")
-    #   }
-    # )
   })
   
   
