@@ -157,4 +157,11 @@ shinyServer(function(input, output, session) {
       }
     })
   })
+  
+  output$downloadPlot <- downloadHandler(
+    filename = function() { paste(getFile(), '.png', sep='') },
+    content = function(file) {
+      ggsave(file, plot = plotInput(), device = "png")
+    }
+  )
 })
