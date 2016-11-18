@@ -3,6 +3,7 @@ library(tidyr)
 library(dplyr)
 library(scales)
 library(shinyjs)
+library(ggplot2)
  source('../../../R/granular.R')
 
 shinyServer(function(input, output, session) {
@@ -16,11 +17,17 @@ shinyServer(function(input, output, session) {
     #Set class toggle for instruction text
     toggleClass('step1', "instgrey", !is.null(getData()))
     toggleClass('step2', "instgrey", (is.null(getData()) | !any(as.logical(lapply(params[[1]], is.null)))))
-    toggleClass('step3', "instgrey", (any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
-    
+    toggleClass('step3', "instgrey", (is.null(getData()) | any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
+
     #Set toggle for the go button
     toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
     
+  })
+  
+  observeEvent(input$restartButton, {
+    
+    reset("sidePanel")
+    #print(params)
   })
   
   output$download_example <- downloadHandler(
@@ -40,7 +47,8 @@ shinyServer(function(input, output, session) {
            "Thirty-six samples" = "../../extdata/fullMastersizer.csv")
   })
   
-  getData <- reactive({
+  getFile <- reactive({
+    input$restartButton
     if(!input$use_example) {
       inFile <- input$file$datapath
     } else {
@@ -48,7 +56,12 @@ shinyServer(function(input, output, session) {
     }
     
     if(is.null(inFile)) return(NULL)
-    
+    return(inFile)
+  })
+  
+  getData <- reactive({
+    inFile <- getFile()
+    if(is.null(inFile)) return(NULL)
     wideData <- read.csv(inFile)
     tData <- gather(wideData, size, proportion, -sample) %>%
       mutate(size = as.numeric(sub("X", "", size))) %>% 
@@ -92,38 +105,46 @@ shinyServer(function(input, output, session) {
     
     params <- list(range = list(min_val = min_val, max_val = max_val), 
                    peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
+    
+    observeEvent(input$resetButton, {
+      if(!is.null(get_params())) {
+        params <- lapply(params, function(x) lapply(x, function(y) y <- NULL))
+      }
+    })
     return(params)
   })
   
   filteredData <- reactive({
     if(is.null(get_params()[[1]][[1]])) {
       return(NULL)
-    } else {
-      params <- get_params()
-      tData <- getData()
-      params <- get_params()
       
-      outData <- tData %>%
-        gather(sample, proportion, -size) %>%
-        filter(size > params[[1]][[1]],
-               size < params[[1]][[2]]) %>%
-        spread(sample, proportion)
-      return(outData)
-    }
-  })
-  
-  observe({filteredData()})
+    } 
+    if(is.null(getData())) return(NULL)
+    params <- get_params()
+    tData <- getData()
+    params <- get_params()
+    
+    outData <- tData %>%
+      gather(sample, proportion, -size) %>%
+      filter(size > params[[1]][[1]],
+             size < params[[1]][[2]]) %>%
+      spread(sample, proportion)
+    return(outData)
+})
   
   observeEvent(input$goButton, {
-    wideData <- filteredData()
+    tData <- filteredData()
     params <- get_params()
     means <- rev(unlist(params[[2]]))
-    tData <- getData()
     ps <- tData[[1]]
+    n <- ncol(tData)
+    print(paste("n:", n))
+    output_list <- vector("list", n - 1)
+    output_plots <- vector("list", n - 1)
     withProgress({
-      n <- ncol(tData)
-      for(i in seq_along(2:n)) {
-        incProgress(1/(n - 1), 
+      for(i in seq_len(n - 1)) {
+        print(paste("i:", i))
+        incProgress(1/n, 
                     "Calculating...", 
                     paste("working on", 
                           names(tData)[i + 1],
@@ -132,12 +153,29 @@ shinyServer(function(input, output, session) {
         )
         newfit <- granular::mix_dist(tData[[i + 1]], ps, 
                            names(tData)[i + 1], comp_means = means)
-        output_list[[i]] <<- newfit[[1]]
-        output_df <<- bind_rows(output_list)
-        output$longDataTable <- renderDataTable({
-          bind_rows(output_list)
-        })
+        output_list[[i]] <- newfit[[1]]
+        output_df <- bind_rows(output_list)
+        output_plots[[i]] <- paste0(names(tData)[i + 1], ".png")
       }
+      output$longDataTable <- renderDataTable({output_df})
+      output$downloadPlot <- downloadHandler(
+        filename = "granular_plots.zip",
+        content = function(file) {
+          tmpdir <- tempdir()
+          for(i in seq_len(length(output_list))) {
+            ggsave(paste0(tmpdir, "/", output_plots[[i]]), 
+                   granular:::ggfit(newfit[[1]], 
+                                    tData[[i + 1]],
+                                    ps, 
+                                    title = names(tData)[i + 1]), 
+                   device = "png",
+                   width = 6, height = 6)
+          }
+          zip(file, unlist(output_plots))
+        }
+      )
     })
   })
+  
+  
 })
