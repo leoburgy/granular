@@ -25,7 +25,7 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$restartButton, {
-    
+    output$longDataTable <- renderDataTable({data.frame()})
     reset("sidePanel")
     #print(params)
   })
@@ -164,14 +164,17 @@ shinyServer(function(input, output, session) {
           tmpdir <- tempdir()
           for(i in seq_len(length(output_list))) {
             ggsave(paste0(tmpdir, "/", output_plots[[i]]), 
-                   granular:::ggfit(newfit[[1]], 
+                   granular:::ggfit(output_list[[i]], 
                                     tData[[i + 1]],
                                     ps, 
                                     title = names(tData)[i + 1]), 
                    device = "png",
                    width = 6, height = 6)
           }
-          zip(file, unlist(output_plots))
+          wd <- getwd()
+          setwd(tmpdir)
+          zip(file, paste0(unlist(output_plots)))
+          setwd(wd)
         }
       )
     })
