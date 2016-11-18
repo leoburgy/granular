@@ -3,11 +3,12 @@
 #' @param fit_output A data frame output from mix_dist()
 #' @param dist A numeric vector defining the distribution
 #' @param ps A numeric vector describing the granule sizes
+#' @param title Logical. Should a title be added to the plot?
 #'
 #' @return a ggplot object
 #' @export
 #' @importFrom magrittr %>%
-ggfit <- function(fit_output, dist, ps) {
+ggfit <- function(fit_output, dist, ps, title = NULL) {
   fit_dist <- make_dist(fit_output, ps)
   fit_dist <- fit_dist/(sum(fit_dist))
   dist <- dist/sum(dist)
@@ -24,6 +25,11 @@ ggfit <- function(fit_output, dist, ps) {
                        colour = "red", size = 0.6) +
     ggplot2::xlab("Log granule size (um)") +
     ggplot2::ylab("Proportion")
+  
+  if(!is.null(title)) {
+    plot_out <- plot_out +
+      ggtitle(title)
+  }
   
   return(plot_out)
 }

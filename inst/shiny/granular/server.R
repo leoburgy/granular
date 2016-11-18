@@ -134,10 +134,9 @@ shinyServer(function(input, output, session) {
   observe({filteredData()})
   
   observeEvent(input$goButton, {
-    wideData <- filteredData()
+    tData <- filteredData()
     params <- get_params()
     means <- rev(unlist(params[[2]]))
-    tData <- getData()
     ps <- tData[[1]]
     n <- ncol(tData)
     print(paste("n:", n))
@@ -161,8 +160,10 @@ shinyServer(function(input, output, session) {
         plot_filename <- paste0(names(tData)[i + 1], ".png")
         ggsave(plot_filename, granular:::ggfit(newfit[[1]], 
                                                tData[[i + 1]],
-                                               ps), 
-               device = "png")
+                                               ps, 
+                                               title = names(tData)[i + 1]), 
+               device = "png",
+               width = 6, height = 6)
       }
     })
     # output$downloadPlot <- downloadHandler(
