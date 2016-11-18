@@ -17,7 +17,7 @@ shinyServer(function(input, output, session) {
     #Set class toggle for instruction text
     toggleClass('step1', "instgrey", !is.null(getData()))
     toggleClass('step2', "instgrey", (is.null(getData()) | !any(as.logical(lapply(params[[1]], is.null)))))
-    toggleClass('step3', "instgrey", (any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
+    toggleClass('step3', "instgrey", (is.null(getData()) | any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
 
     #Set toggle for the go button
     toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
@@ -117,21 +117,20 @@ shinyServer(function(input, output, session) {
   filteredData <- reactive({
     if(is.null(get_params()[[1]][[1]])) {
       return(NULL)
-    } else {
-      params <- get_params()
-      tData <- getData()
-      params <- get_params()
       
-      outData <- tData %>%
-        gather(sample, proportion, -size) %>%
-        filter(size > params[[1]][[1]],
-               size < params[[1]][[2]]) %>%
-        spread(sample, proportion)
-      return(outData)
-    }
-  })
-  
-  observe({filteredData()})
+    } 
+    if(is.null(getData())) return(NULL)
+    params <- get_params()
+    tData <- getData()
+    params <- get_params()
+    
+    outData <- tData %>%
+      gather(sample, proportion, -size) %>%
+      filter(size > params[[1]][[1]],
+             size < params[[1]][[2]]) %>%
+      spread(sample, proportion)
+    return(outData)
+})
   
   observeEvent(input$goButton, {
     tData <- filteredData()
