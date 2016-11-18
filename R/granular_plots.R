@@ -23,8 +23,8 @@ ggfit <- function(fit_output, dist, ps, title = NULL) {
                        size = 1) +
     ggplot2::geom_line(ggplot2::aes(x = log_ps, y = fit_dist),
                        colour = "red", size = 0.6) +
-    ggplot2::xlab(paste0("Log granule size (", 
-expression(mu), "m)")) +
+    ggplot2::xlab(
+expression(paste("Log granule size (", mu, "m)"))) +
     ggplot2::ylab("Proportion")
   
   if(!is.null(title)) {

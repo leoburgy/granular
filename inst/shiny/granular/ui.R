@@ -52,22 +52,18 @@ shinyUI(fluidPage(
   mainPanel(
     #tabsetPanel for logic flow
     tabsetPanel(
+      id = "tabset",
       
       #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
-      tabPanel(
-        "Initial inspection",
-        # includeHTML("www/index.html"),
+      tabPanel(title = "Setup",
         mastersizer_vis("mastersizer")
         ),
-      tabPanel(
-        "Output data",
+      tabPanel(title = "Output",
         shiny::dataTableOutput("longDataTable")
       ),
-      tabPanel(
-        "Summary statistics"
+      tabPanel(title = "Summary"
       ),
-      tabPanel(
-        "Plots",
+      tabPanel(title = "Plots",
         div(class = "center-button",
             downloadButton("downloadPlot", "Download all fit plots as zip", class = "center-button")
         )

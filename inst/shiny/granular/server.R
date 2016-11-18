@@ -21,13 +21,11 @@ shinyServer(function(input, output, session) {
 
     #Set toggle for the go button
     toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
-    
   })
   
   observeEvent(input$restartButton, {
     output$longDataTable <- renderDataTable({data.frame()})
     reset("sidePanel")
-    #print(params)
   })
   
   output$download_example <- downloadHandler(
@@ -39,7 +37,7 @@ shinyServer(function(input, output, session) {
       write.csv(read.csv(example_file(), check.names = FALSE), file, row.names = FALSE)
     }
   )
-  
+ 
   example_file <- reactive({
     switch(input$select_data,
            "Single sample" = "../../extdata/singleMastersizer.csv",
@@ -138,12 +136,10 @@ shinyServer(function(input, output, session) {
     means <- rev(unlist(params[[2]]))
     ps <- tData[[1]]
     n <- ncol(tData)
-    print(paste("n:", n))
     output_list <- vector("list", n - 1)
     output_plots <- vector("list", n - 1)
     withProgress({
       for(i in seq_len(n - 1)) {
-        print(paste("i:", i))
         incProgress(1/n, 
                     "Calculating...", 
                     paste("working on", 
@@ -178,6 +174,8 @@ shinyServer(function(input, output, session) {
         }
       )
     })
+    updateTabsetPanel(session, "tabset",
+                      selected = "Output")
   })
   
   
