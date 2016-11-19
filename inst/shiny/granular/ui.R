@@ -55,15 +55,15 @@ shinyUI(fluidPage(
       id = "tabset",
       
       #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
-      tabPanel(title = "Setup",
+      tabPanel(title = "Setup", 
         mastersizer_vis("mastersizer")
         ),
-      tabPanel(title = "Output",
+      tabPanel(title = "Output", value = "output",
         shiny::dataTableOutput("longDataTable")
       ),
-      tabPanel(title = "Summary"
+      tabPanel(title = "Summary", value = "summary"
       ),
-      tabPanel(title = "Plots",
+      tabPanel(title = "Plots", value = "plots",
         div(class = "center-button",
             downloadButton("downloadPlot", "Download all fit plots as zip", class = "center-button")
         )
