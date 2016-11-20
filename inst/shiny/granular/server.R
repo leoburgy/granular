@@ -163,6 +163,7 @@ shinyServer(function(input, output, session) {
       toggle(selector = "#tabset li a[data-value=output]")
       toggle(selector = "#tabset li a[data-value=summary]")
       toggle(selector = "#tabset li a[data-value=plots]")
+      updateTabsetPanel(session, "tabset", "output")
       return(output_list)
     } else {
     return(NULL)
