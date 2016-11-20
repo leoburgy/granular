@@ -25,7 +25,9 @@ shinyServer(function(input, output, session) {
   
   observe({
     #Hide tabs to start
-    hide(selector = "#navbar li a[data-value=output]")
+    hide(selector = "#tabset li a[data-value=output]")
+    hide(selector = "#tabset li a[data-value=summary]")
+    hide(selector = "#tabset li a[data-value=plots]")
   })
   
   observeEvent(input$restartButton, {
@@ -59,6 +61,7 @@ shinyServer(function(input, output, session) {
     }
     
     if(is.null(inFile)) return(NULL)
+    print(paste("infile is", inFile))
     return(inFile)
   })
   
@@ -135,7 +138,8 @@ shinyServer(function(input, output, session) {
     return(outData)
   })
   
-  output_list <- reactive({
+  output_list <- observe({
+    print(paste("input$goButtun =", input$goButton))
     if(input$goButton > 0) {
       tData <- filteredData()
       params <- get_params()
@@ -158,14 +162,21 @@ shinyServer(function(input, output, session) {
           output_list[[i]] <- newfit[[1]]
           # output_df <- bind_rows(output_list)
           # output_plots[[i]] <- paste0(names(tData)[i + 1], ".png")
+          print(i)
         }
       })
-      return(output_list)
-      toggle(selector = "#navbar li a[data-value=output]")
+      # return(output_list)
+      toggle(selector = "#tabset li a[data-value=output]")
+      toggle(selector = "#tabset li a[data-value=summary]")
+      toggle(selector = "#tabset li a[data-value=plots]")
     } else {
       return(NULL)
     }
   })
+  
+  # output_test <- observeEvent(input$goButton, {
+  #   print(output_list())
+  # })
   
   output$longDataTable <- renderDataTable({
     if(is.null(output_list())) return(NULL)
