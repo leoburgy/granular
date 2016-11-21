@@ -55,7 +55,7 @@ shinyUI(fluidPage(
       id = "tabset",
       
       #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
-      tabPanel(title = "Setup", 
+      tabPanel(title = "Setup", value = "setup",
         mastersizer_vis("mastersizer")
         ),
       tabPanel(title = "Output", value = "output",

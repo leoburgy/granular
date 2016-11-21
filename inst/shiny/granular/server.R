@@ -18,6 +18,14 @@ shinyServer(function(input, output, session) {
     
     #Set class toggle for instruction text
     toggleClass('step1', "instgrey", !is.null(getData()))
+    print("is.null(getData())")
+    print(is.null(getData()))
+    print("!any(as.logical(lapply(params[[1]], is.null))))")
+    print(!any(as.logical(lapply(params[[1]], is.null))))
+    print("params[[1]]")
+    print(params[[1]])
+    print("params[[2]]")
+    print(params[[2]])
     toggleClass('step2', "instgrey", (is.null(getData()) | !any(as.logical(lapply(params[[1]], is.null)))))
     toggleClass('step3', "instgrey", (is.null(getData()) | any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
     
@@ -32,12 +40,22 @@ shinyServer(function(input, output, session) {
     hide(selector = "#tabset li a[data-value=plots]")
   })
   
-  observeEvent(input$restartButton, {
-    output$longDataTable <- renderDataTable({data.frame()})
-    reset("sidePanel")
-    reset("goButton")
-    values$params <- NULL
-    updateTabsetPanel(session, "tabset", "setup")
+  observe({
+    input$restartButton
+    isolate({
+      # output$longDataTable <- NULL
+      reset("sidePanel")
+      reset("goButton")
+      print(values$params)
+      values$params <- list(range = list(min_val = NULL, max_val = NULL), 
+                            peaks = list(peak_A = NULL, peak_B = NULL, peak_C = NULL))
+      print('setting params to null')
+      print(values$params)
+      updateTabsetPanel(session, "tabset", "setup")
+      hide(selector = "#tabset li a[data-value=output]")
+      hide(selector = "#tabset li a[data-value=summary]")
+      hide(selector = "#tabset li a[data-value=plots]")
+    })
   })
   
   output$download_example <- downloadHandler(
@@ -200,3 +218,4 @@ shinyServer(function(input, output, session) {
     }
   )
 })
+
