@@ -10,6 +10,17 @@ shinyServer(function(input, output, session) {
   
   values <- reactiveValues()
   
+  granular <- reactiveValues()
+
+  observe({
+    granular$version <- sessionInfo()
+  })
+
+  
+  output$granular_version <- renderText({
+    paste0("v", granular$version$loadedOnly$granular$Version)
+  })
+  
   observe({
     toggle('select_data', condition = input$use_example)
     toggle('file', condition = !input$use_example)
@@ -18,14 +29,6 @@ shinyServer(function(input, output, session) {
     
     #Set class toggle for instruction text
     toggleClass('step1', "instgrey", !is.null(getData()))
-    print("is.null(getData())")
-    print(is.null(getData()))
-    print("!any(as.logical(lapply(params[[1]], is.null))))")
-    print(!any(as.logical(lapply(params[[1]], is.null))))
-    print("params[[1]]")
-    print(params[[1]])
-    print("params[[2]]")
-    print(params[[2]])
     toggleClass('step2', "instgrey", (is.null(getData()) | !any(as.logical(lapply(params[[1]], is.null)))))
     toggleClass('step3', "instgrey", (is.null(getData()) | any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
     
@@ -46,11 +49,8 @@ shinyServer(function(input, output, session) {
       # output$longDataTable <- NULL
       reset("sidePanel")
       reset("goButton")
-      print(values$params)
       values$params <- list(range = list(min_val = NULL, max_val = NULL), 
                             peaks = list(peak_A = NULL, peak_B = NULL, peak_C = NULL))
-      print('setting params to null')
-      print(values$params)
       updateTabsetPanel(session, "tabset", "setup")
       hide(selector = "#tabset li a[data-value=output]")
       hide(selector = "#tabset li a[data-value=summary]")
@@ -76,7 +76,6 @@ shinyServer(function(input, output, session) {
   })
   
   getFile <- reactive({
-    print('starting getFile')
     input$restartButton
     if(!input$use_example) {
       inFile <- input$file$datapath
@@ -89,7 +88,6 @@ shinyServer(function(input, output, session) {
   })
   
   getData <- reactive({
-    print('starting getData')
     inFile <- getFile()
     if(is.null(inFile)) return(NULL)
     wideData <- read.csv(inFile)
@@ -135,11 +133,9 @@ shinyServer(function(input, output, session) {
     
     values$params <- list(range = list(min_val = min_val, max_val = max_val), 
                           peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
-    print('updated params')
-  })
+    })
   
   filteredData <- reactive({
-    print('starting filteredData')
     if(is.null(values$params[[1]][[1]])) {
       return(NULL)
     } 

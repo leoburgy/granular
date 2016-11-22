@@ -50,6 +50,7 @@ shinyUI(fluidPage(
                      actionButton("restartButton", "Start again", width = '100%'))
   ),
   mainPanel(
+    textOutput("granular_version"),
     #tabsetPanel for logic flow
     tabsetPanel(
       id = "tabset",
