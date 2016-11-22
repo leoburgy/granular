@@ -164,11 +164,11 @@
 				// RESET plot and variables
 				d3.selectAll(".svg-container").remove();
 				this.lines = {"counter":0, "brushed": false};
-				Shiny.onInputChange("min_val", null);
-				Shiny.onInputChange("max_val", null);
-				Shiny.onInputChange("peak_A", null);
-				Shiny.onInputChange("peak_B", null);
-				Shiny.onInputChange("peak_C", null);
+				Shiny.onInputChange("min_val", null); 
+				Shiny.onInputChange("max_val", null); 
+				Shiny.onInputChange("peak_A", null); 
+				Shiny.onInputChange("peak_B", null); 
+				Shiny.onInputChange("peak_C", null); 
 				if(!data) return;
 				
 				this.svg = d3.select("div#mastersizer")
