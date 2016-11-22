@@ -4,7 +4,7 @@
 \alias{ggfit}
 \title{A function for plotting a fit output against the true distribution}
 \usage{
-ggfit(fit_output, dist, ps)
+ggfit(fit_output, dist, ps, title = NULL)
 }
 \arguments{
 \item{fit_output}{A data frame output from mix_dist()}
@@ -12,6 +12,8 @@ ggfit(fit_output, dist, ps)
 \item{dist}{A numeric vector defining the distribution}
 
 \item{ps}{A numeric vector describing the granule sizes}
+
+\item{title}{Logical. Should a title be added to the plot?}
 }
 \value{
 a ggplot object

@@ -26,7 +26,7 @@ shinyUI(fluidPage(
   titlePanel("Starch Granule Mixture Classification"),
   
   #sidebarPanel for data upload, estimation of mu
-  tags$div(class = 'col-sm-4',
+  tags$div(id = "sidePanel", class = 'col-sm-4',
            tags$form(class = 'well',
                      tags$div(class = 'row-fluid',
                               fileInput('file', 'Choose CSV file', accept=c('text/csv', 
@@ -45,27 +45,28 @@ shinyUI(fluidPage(
                               p(id = "step2", class = "inst", "2. Click and drag on the plot to identify the area with true peaks"),
                               p(id = "step3", class = "inst", "3. Click to identify peaks")),
                      actionButton("goButton", "4. Process Data", width = '100%')
-           )
+           ),
+           tags$form(id = 'restart', class = 'well',
+                     actionButton("restartButton", "Start again", width = '100%'))
   ),
   mainPanel(
     #tabsetPanel for logic flow
     tabsetPanel(
+      id = "tabset",
       
       #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
-      tabPanel(
-        "Initial inspection",
-        # includeHTML("www/index.html"),
+      tabPanel(title = "Setup", value = "setup",
         mastersizer_vis("mastersizer")
         ),
-      tabPanel(
-        "Output data",
+      tabPanel(title = "Output", value = "output",
         shiny::dataTableOutput("longDataTable")
       ),
-      tabPanel(
-        "Summary statistics"
+      tabPanel(title = "Summary", value = "summary"
       ),
-      tabPanel(
-        "Plots"
+      tabPanel(title = "Plots", value = "plots",
+        div(class = "center-button",
+            downloadButton("downloadPlot", "Download all fit plots as zip", class = "center-button")
+        )
       )
     ),
     tags$script(src="plotter.js")

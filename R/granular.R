@@ -82,9 +82,3 @@ mix_dist <- function(dist,
   theFit <- cbind(sample, peak = names(comp_means), mixFit$parameters, mixFit$se)
   return(list(theFit, mixFit))		
 }
-
-plot_mix <- function(mix) {
-  real_dat <- mix$mixdata
-  p <- ggplot2::ggplot(real_dat, ggplot2::aes(log_size, rfreq)) + ggplot2::geom_line()
-  print(p)
-}
