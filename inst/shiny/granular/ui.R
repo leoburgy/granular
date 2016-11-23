@@ -1,5 +1,6 @@
 library(shiny)
 library(shinyjs)
+library(rmarkdown)
 
 mastersizer_vis <- function(outputId) {
   HTML(paste("<div id=\"", outputId, "\" class=\"shiny-network-output\"></div>", sep=""))
@@ -55,6 +56,12 @@ navbarPage(
            div(class = "center-button",
                downloadButton("downloadPlot", "Download all fit plots as zip", class = "center-button")
            )
-  )#,
-  # tabPanel(title = "More")
+  ),
+  tabPanel(title = "About",
+           div(class = 'col-sm-4'),
+           div(class = 'col-sm-4',
+               includeMarkdown("about.md")
+           )
+  )
 )
+  
