@@ -9,6 +9,7 @@ mastersizer_vis <- function(outputId) {
 navbarPage(
   title = textOutput("granular_version"),
   id = "tabset",
+  windowTitle = "granular",
   #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
   tabPanel(title = "Setup", value = "setup",
            useShinyjs(),
