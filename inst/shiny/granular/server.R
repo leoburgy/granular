@@ -19,7 +19,6 @@ shinyServer(function(input, output, session) {
 
   
   output$granular_version <- renderText({
-    print(granular$version)
     paste0("granular - v", granular$version$otherPkgs$granular$Version)
   })
   
@@ -48,7 +47,6 @@ shinyServer(function(input, output, session) {
   observe({
     input$restartButton
     isolate({
-      # output$longDataTable <- NULL
       reset("sidePanel")
       reset("goButton")
       values$params <- list(range = list(min_val = NULL, max_val = NULL), 
@@ -194,11 +192,14 @@ shinyServer(function(input, output, session) {
   output$downloadPlot <- downloadHandler(
     filename = "granular_plots.zip",
     content = function(file) {
-      if(is.null(output_list())) {
+      if(is.null(values$output_list)) {
         return(NULL)
       } else {
-        
+        output_list <- values$output_list
+        output_plots <- vector("list", length(output_list))
         tmpdir <- tempdir()
+        tData <- filteredData()
+        ps <- tData[[1]]
         for(i in seq_len(length(output_list))) {
           ggsave(paste0(tmpdir, "/", output_plots[[i]]), 
                  granular:::ggfit(output_list[[i]], 
