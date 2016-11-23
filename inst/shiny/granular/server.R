@@ -201,6 +201,7 @@ shinyServer(function(input, output, session) {
         tData <- filteredData()
         ps <- tData[[1]]
         for(i in seq_len(length(output_list))) {
+          output_plots[[i]] <- paste0(names(tData)[[i + 1]], ".png")
           ggsave(paste0(tmpdir, "/", output_plots[[i]]), 
                  granular:::ggfit(output_list[[i]], 
                                   tData[[i + 1]],
