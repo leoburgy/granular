@@ -4,6 +4,7 @@ library(dplyr)
 library(scales)
 library(shinyjs)
 library(ggplot2)
+library(granular)
 source('../../../R/granular.R')
 
 shinyServer(function(input, output, session) {
@@ -18,7 +19,8 @@ shinyServer(function(input, output, session) {
 
   
   output$granular_version <- renderText({
-    paste0("v", granular$version$loadedOnly$granular$Version)
+    print(granular$version)
+    paste0("granular - v", granular$version$otherPkgs$granular$Version)
   })
   
   observe({

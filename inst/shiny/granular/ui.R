@@ -6,9 +6,7 @@ mastersizer_vis <- function(outputId) {
 }
 
 navbarPage(
-  title = div(class = "fluid-row",
-              "Starch Granule Mixture Classification",
-              textOutput("granular_version")),
+  title = textOutput("granular_version"),
   id = "tabset",
   #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
   tabPanel(title = "Setup", value = "setup",
