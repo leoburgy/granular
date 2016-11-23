@@ -4,15 +4,30 @@ library(dplyr)
 library(scales)
 library(shinyjs)
 library(ggplot2)
+library(granular)
 source('../../../R/granular.R')
 
 shinyServer(function(input, output, session) {
+  
+  values <- reactiveValues()
+  
+  granular <- reactiveValues()
+
+  observe({
+    granular$version <- sessionInfo()
+  })
+
+  
+  output$granular_version <- renderText({
+    print(granular$version)
+    paste0("granular - v", granular$version$otherPkgs$granular$Version)
+  })
   
   observe({
     toggle('select_data', condition = input$use_example)
     toggle('file', condition = !input$use_example)
     toggle('download_example', condition = input$use_example)
-    params <- get_params()
+    params <- values$params
     
     #Set class toggle for instruction text
     toggleClass('step1', "instgrey", !is.null(getData()))
@@ -20,7 +35,7 @@ shinyServer(function(input, output, session) {
     toggleClass('step3', "instgrey", (is.null(getData()) | any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
     
     #Set toggle for the go button
-    toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
+     toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
   })
   
   observe({
@@ -30,9 +45,19 @@ shinyServer(function(input, output, session) {
     hide(selector = "#tabset li a[data-value=plots]")
   })
   
-  observeEvent(input$restartButton, {
-    output$longDataTable <- renderDataTable({data.frame()})
-    reset("sidePanel")
+  observe({
+    input$restartButton
+    isolate({
+      # output$longDataTable <- NULL
+      reset("sidePanel")
+      reset("goButton")
+      values$params <- list(range = list(min_val = NULL, max_val = NULL), 
+                            peaks = list(peak_A = NULL, peak_B = NULL, peak_C = NULL))
+      updateTabsetPanel(session, "tabset", "setup")
+      hide(selector = "#tabset li a[data-value=output]")
+      hide(selector = "#tabset li a[data-value=summary]")
+      hide(selector = "#tabset li a[data-value=plots]")
+    })
   })
   
   output$download_example <- downloadHandler(
@@ -78,7 +103,7 @@ shinyServer(function(input, output, session) {
     getData()
   })
   
-  get_params <- reactive({
+  observe({
     min_val <- if(!is.null(input$min_val)) {
       input$min_val
     } else NULL
@@ -108,26 +133,19 @@ shinyServer(function(input, output, session) {
       input$peak_C
     } else(NULL)
     
-    params <- list(range = list(min_val = min_val, max_val = max_val), 
-                   peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
-    
-    observeEvent(input$resetButton, {
-      if(!is.null(get_params())) {
-        params <- lapply(params, function(x) lapply(x, function(y) y <- NULL))
-      }
+    values$params <- list(range = list(min_val = min_val, max_val = max_val), 
+                          peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
     })
-    return(params)
-  })
   
   filteredData <- reactive({
-    if(is.null(get_params()[[1]][[1]])) {
+    if(is.null(values$params[[1]][[1]])) {
       return(NULL)
-      
     } 
+    
     if(is.null(getData())) return(NULL)
-    params <- get_params()
+    
+    params <- values$params
     tData <- getData()
-    params <- get_params()
     
     outData <- tData %>%
       gather(sample, proportion, -size) %>%
@@ -137,44 +155,40 @@ shinyServer(function(input, output, session) {
     return(outData)
   })
   
-  output_list <- reactive({
-    if(input$goButton > 0) {
-      tData <- filteredData()
-      params <- get_params()
-      means <- rev(unlist(params[[2]]))
-      ps <- tData[[1]]
-      n <- ncol(tData)
-      output_list <- vector("list", n - 1)
-      output_plots <- vector("list", n - 1)
-      withProgress({
-        for(i in seq_len(n - 1)) {
-          incProgress(1/n, 
-                      "Calculating...", 
-                      paste("working on", 
-                            names(tData)[i + 1],
-                            "which is", 
-                            i, "of", n - 1)
-          )
-          newfit <- granular::mix_dist(tData[[i + 1]], ps, 
-                                       names(tData)[i + 1], comp_means = means)
-          output_list[[i]] <- newfit[[1]]
-        }
-      })
-      toggle(selector = "#tabset li a[data-value=output]")
-      toggle(selector = "#tabset li a[data-value=summary]")
-      toggle(selector = "#tabset li a[data-value=plots]")
-      updateTabsetPanel(session, "tabset", "output")
-      return(output_list)
-    } else {
-    return(NULL)
-    }
+  observe({
+    if(input$goButton == 0) 
+      return(NULL)
+    isolate({tData <- filteredData()
+            params <- values$params
+            means <- rev(unlist(params[[2]]))
+            ps <- tData[[1]]
+            n <- ncol(tData)
+            output_list <- vector("list", n - 1)
+            withProgress({
+              for(i in seq_len(n - 1)) {
+                incProgress(1/n, 
+                            "Calculating...", 
+                            paste("working on", 
+                                  names(tData)[i + 1],
+                                  "which is", 
+                                  i, "of", n - 1)
+                )
+                newfit <- granular::mix_dist(tData[[i + 1]], ps, 
+                                             names(tData)[i + 1], comp_means = means)
+                output_list[[i]] <- newfit[[1]]
+              }
+            })
+            values$output_list <- output_list
+            toggle(selector = "#tabset li a[data-value=output]")
+            toggle(selector = "#tabset li a[data-value=summary]")
+            toggle(selector = "#tabset li a[data-value=plots]")
+            updateTabsetPanel(session, "tabset", "output")
+            return(output_list)})
   })
   
-  observe(output_list())
-  
   output$longDataTable <- renderDataTable({
-    if(is.null(output_list())) return(NULL)
-    bind_rows(output_list())
+    if(is.null(values$output_list)) return(NULL)
+    bind_rows(values$output_list)
   })
   
   output$downloadPlot <- downloadHandler(
@@ -202,3 +216,4 @@ shinyServer(function(input, output, session) {
     }
   )
 })
+

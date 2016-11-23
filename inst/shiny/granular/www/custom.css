@@ -81,3 +81,12 @@ text {
   margin: auto;
   padding: 10px;
 }
+
+button.navbar-button {
+  background:none!important;
+  border:none;
+  padding:15px;
+  font: inherit;
+  cursor: pointer;
+  color:#555;
+}
