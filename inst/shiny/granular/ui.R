@@ -6,7 +6,10 @@ mastersizer_vis <- function(outputId) {
 }
 
 navbarPage(
-  title = "Starch Granule Mixture Classification",
+  title = div(class = "fluid-row",
+              "Starch Granule Mixture Classification",
+              textOutput("granular_version")),
+  id = "tabset",
   #First tabPanel for visualisation of data to estimate number of mixtures and where the centres are
   tabPanel(title = "Setup", value = "setup",
            useShinyjs(),
@@ -34,12 +37,12 @@ navbarPage(
                                        p(id = "step2", class = "inst", "2. Click and drag on the plot to identify the area with true peaks"),
                                        p(id = "step3", class = "inst", "3. Click to identify peaks")),
                               actionButton("goButton", "4. Process Data", width = '100%')
-                    ),
-                    tags$form(id = 'restart', class = 'well',
-                              actionButton("restartButton", "Start again", width = '100%'))
+                    )#,
+                    # tags$form(id = 'restart', class = 'well',
+                    #           actionButton("restartButton", "Start again", width = '100%'))
            ),
            mainPanel(
-             textOutput("granular_version"),
+             # textOutput("granular_version"),
              tags$script(src="plotter.js"),
              mastersizer_vis("mastersizer")
            )
@@ -49,9 +52,10 @@ navbarPage(
   ),
   tabPanel(title = "Summary", value = "summary"
   ),
-  tabPanel(title = "Plots", value = "plots",
+  tabPanel(title = HTML("Plots</a></li><li<button id='restartButton' type='button' class='action-button shiny-bound-input'>Start again</button>"), value = "plots",
            div(class = "center-button",
                downloadButton("downloadPlot", "Download all fit plots as zip", class = "center-button")
            )
-  )
+  )#,
+  # tabPanel(title = "More")
 )
