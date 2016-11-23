@@ -82,7 +82,7 @@ text {
   padding: 10px;
 }
 
-.navbar-button {
+button.navbar-button {
   background:none!important;
   border:none;
   padding:15px;

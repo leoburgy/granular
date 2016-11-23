@@ -52,8 +52,8 @@ navbarPage(
   ),
   tabPanel(title = "Summary", value = "summary"
   ),
-  tabPanel(title = HTML("Plots</a></li><li><button id='restartButton' type='button' class='action-button shiny-bound-input navbar-button'>Start again</button></li>"), value = "plots",
-           style = "display: block;",
+  tabPanel(title = HTML("Plots</a></li><li><button id='restartButton' type='button' class='action-button shiny-bound-input navbar-button'>Start again</button></li>"), 
+           value = "plots",
            div(class = "center-button",
                downloadButton("downloadPlot", "Download all fit plots as zip", class = "center-button")
            )
