@@ -5,7 +5,7 @@ library(scales)
 library(shinyjs)
 library(ggplot2)
 library(granular)
-source('../../../R/granular.R')
+# source('../../../R/granular.R')
 
 shinyServer(function(input, output, session) {
   
