@@ -3,6 +3,9 @@ cache: packages
 sudo: false
 
 r_github_packages:
+  - gaborcsardi/debugme
+  - MangoTheCat/processx
+  - MangoTheCat/webdriver
   - MangoTheCat/shinytest
   
 after_success:
