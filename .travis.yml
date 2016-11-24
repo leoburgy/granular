@@ -2,5 +2,8 @@ language: r
 cache: packages
 sudo: false
 
+r_github_packages:
+  - MangoTheCat/shinytest
+  
 after_success:
   - Rscript -e 'covr::codecov()'
