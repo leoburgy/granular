@@ -1,6 +1,6 @@
 Package: granular
 Title: Resolving starch granule distributions
-Version: 0.0.0.1
+Version: 0.1.0
 Authors@R: c(
     person("Alex", "Whan", , "alexwhan@gmail.com", c("aut", "cre")),
     person("Emi", "Tanaka", , "etanaka@uow.edu.au", "aut")
@@ -17,9 +17,12 @@ Imports:
     dplyr (>= 0.4.3),
     tidyr (>= 0.4.0),
     purrr (>= 0.2.1),
-    ggplot2 (>= 1.0.0)
+    ggplot2 (>= 1.0.0),
+    rmarkdown (>= 1.0.0),
+    shinyjs 
 Suggests:
-    testthat
+    testthat,
+    shinytest
 URL: https://github.com/csiro-crop-informatics/granular
 BugReports: https://github.com/csiro-crop-informatics/granular/issues
 RoxygenNote: 5.0.1
