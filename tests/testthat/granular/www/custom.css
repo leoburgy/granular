@@ -1,0 +1,92 @@
+.half-gutter > [class*='col-'] {
+  position: relative;
+  // Prevent columns from collapsing when empty
+  min-height: 1px;
+  // Inner gutter via padding
+  padding-right: (@gutter / 2);
+  padding-left: (@gutter / 2);
+}
+
+// added for plots
+.x.axis path {
+    fill: none;
+    /*stroke: white;*/
+    stroke-width: 1px;
+    opacity: 0.8;
+  }
+
+text { 
+  color: black;
+  stroke-opacity: 0;
+  fill: black;
+}
+
+  .inst {
+    font-size: 18px;
+  }
+  .instgrey {
+    color: grey;
+    font-size: 12px;
+  }
+
+  .hover-line { 
+    stroke: black;  
+    fill: none;
+    stroke-width: 1px;
+  }
+
+  .inlet {
+    stroke: red;
+    color: red;
+    stroke-width: 2px;
+    opacity: 0.8;
+    fill: none;
+  }
+
+  .discharge {
+    stroke: steelblue;
+    color: steelblue;
+    stroke-width: 2px;
+    opacity: 0.8;
+    fill: none;
+  }
+
+  .axis--x path {
+    /* display: none; */
+  }
+
+  .line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+  }
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+    width: 600px;
+    height: 400px;
+}
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+.center-button {
+  margin: auto;
+  padding: 10px;
+}
+
+button.navbar-button {
+  background:none!important;
+  border:none;
+  padding:15px;
+  font: inherit;
+  cursor: pointer;
+  color:#555;
+}
