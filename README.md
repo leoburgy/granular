@@ -1,6 +1,6 @@
 # granular
 
-[![Linux build status](https://travis-ci.org/csiro-crop-informatics/granular.svg?branch=master)
+[![Linux build status](https://travis-ci.org/csiro-crop-informatics/granular.svg?branch=master)]
 
 Granular is an R package containing a shiny app the implements the mix function from the [mixdist](http://ms.mcmaster.ca/peter/mix/mix.html) package, principally dealing with starch granule size data from MasterSizer instruments.
 

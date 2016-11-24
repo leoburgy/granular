@@ -3,42 +3,44 @@
 # Download script file from GitHub
 init:
   ps: |
-  $ErrorActionPreference = "Stop"
-  Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
-  Import-Module '..\appveyor-tool.ps1'
-  install:
-    ps: Bootstrap
-  
-  # Adapt as necessary starting from here
-  
-  build_script:
-    - travis-tool.sh install_deps
+        $ErrorActionPreference = "Stop"
+        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Import-Module '..\appveyor-tool.ps1'
+
+install:
+  ps: Bootstrap
+
+# Adapt as necessary starting from here
+
+build_script:
+  - travis-tool.sh install_deps
   - travis-tool.sh install_github gaborcsardi/debugme
   - travis-tool.sh install_github MangoTheCat/processx
   - travis-tool.sh install_github MangoTheCat/webdriver
+  - travis-tool.sh install_github MangoTheCat/shinytest
   - travis-tool.sh install_github rstudio/shiny
-  
-  test_script:
-    - travis-tool.sh run_tests
-  
-  on_failure:
-    - travis-tool.sh dump_logs
-  
-  artifacts:
-    - path: '*.Rcheck\**\*.log'
-  name: Logs
-  
+
+test_script:
+  - travis-tool.sh run_tests
+
+on_failure:
+  - travis-tool.sh dump_logs
+
+artifacts:
+  - path: '*.Rcheck\**\*.log'
+    name: Logs
+
   - path: '*.Rcheck\**\*.out'
-  name: Logs
-  
+    name: Logs
+
   - path: '*.Rcheck\**\*.fail'
-  name: Logs
-  
+    name: Logs
+
   - path: '*.Rcheck\**\*.Rout'
-  name: Logs
-  
+    name: Logs
+
   - path: '\*_*.tar.gz'
-  name: Bits
-  
+    name: Bits
+
   - path: '\*_*.zip'
-  name: Bits
+    name: Bits
