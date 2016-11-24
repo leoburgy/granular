@@ -18,7 +18,8 @@ Imports:
     tidyr (>= 0.4.0),
     purrr (>= 0.2.1),
     ggplot2 (>= 1.0.0),
-    rmarkdown (>= 1.0.0)
+    rmarkdown (>= 1.0.0),
+    shinyjs 
 Suggests:
     testthat,
     shinytest

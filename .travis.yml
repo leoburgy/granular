@@ -21,6 +21,7 @@ r_github_packages:
   - MangoTheCat/webdriver
   - MangoTheCat/shinytest
   - rstudio/shiny
+  - daattali/shinyjs
   
 after_success:
   - Rscript -e 'covr::codecov()'
