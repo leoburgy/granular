@@ -22,6 +22,6 @@ r_github_packages:
   - MangoTheCat/shinytest
   - rstudio/shiny
   - daattali/shinyjs
-  
+
 after_success:
   - Rscript -e 'covr::codecov()'

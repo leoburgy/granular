@@ -49,13 +49,22 @@ mix_dist <- function(dist,
   if (!all(dist>=0))
     stop("ERROR: Negative distribution value.")
   
+  comp_means <- comp_means[order(comp_means)]
+  
+  ncomp <- length(comp_means)
+
+  if(is.null(names(comp_means))) {
+    names(comp_means) <- paste0("peak_", seq_len(ncomp))
+    message(paste("No names supplied for means, providing default names:", 
+                  names(comp_means)))
+  } 
+  
   log_ps <- log(ps)
   index_start <- min(which(dist!=0)) # to remove trailing and leading 0 entries.
   index_end <- max(which(dist!=0))
   dat <- data.frame("log_size"=log_ps[index_start:index_end],
                     "rfreq"=dist[index_start:index_end])
-  ncomp <- length(comp_means)
-
+  
     #calculate initial parameters
   heights_d <- get_heights(dat[["rfreq"]], dat[["log_size"]], log(comp_means))
   comp_weights <- heights_d/(sum(heights_d))
