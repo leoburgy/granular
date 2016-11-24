@@ -3,9 +3,7 @@ library(shinytest)
 
 context("shiny initialisation")
 
-print(getwd())
-print(list.files("../../granular"))
 test_that("shiny app launches", {
-  
-  expect_error(app <- shinytest::shinyapp$new("granular"), NA)
+  app <- shinytest::shinyapp$new("granular")
+  expect_false(app$get_value("use_example"))
 })
