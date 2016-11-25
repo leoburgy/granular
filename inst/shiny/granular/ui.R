@@ -50,8 +50,6 @@ navbarPage(
   tabPanel(title = "Output", value = "output",
            shiny::dataTableOutput("longDataTable")
   ),
-  tabPanel(title = "Summary", value = "summary"
-  ),
   tabPanel(title = HTML("Download output</a></li><li><button id='restartButton' type='button' class='action-button shiny-bound-input navbar-button'>Start again</button></li>"), 
            value = "downloads",
            div(class = "center-button",
