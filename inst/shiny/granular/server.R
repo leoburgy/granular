@@ -41,7 +41,7 @@ shinyServer(function(input, output, session) {
     #Hide tabs to start
     hide(selector = "#tabset li a[data-value=output]")
     hide(selector = "#tabset li a[data-value=summary]")
-    hide(selector = "#tabset li a[data-value=plots]")
+    hide(selector = "#tabset li a[data-value=downloads]")
   })
   
   observe({
@@ -54,7 +54,7 @@ shinyServer(function(input, output, session) {
       updateTabsetPanel(session, "tabset", "setup")
       hide(selector = "#tabset li a[data-value=output]")
       hide(selector = "#tabset li a[data-value=summary]")
-      hide(selector = "#tabset li a[data-value=plots]")
+      hide(selector = "#tabset li a[data-value=downloads]")
     })
   })
   
@@ -179,7 +179,7 @@ shinyServer(function(input, output, session) {
             values$output_list <- output_list
             toggle(selector = "#tabset li a[data-value=output]")
             toggle(selector = "#tabset li a[data-value=summary]")
-            toggle(selector = "#tabset li a[data-value=plots]")
+            toggle(selector = "#tabset li a[data-value=downloads]")
             updateTabsetPanel(session, "tabset", "output")
             return(output_list)})
   })
