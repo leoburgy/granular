@@ -11,17 +11,16 @@ LazyData: true
 Depends:
     R (>= 3.0.1)
 Imports:
-    mixdist (>= 0.5),
-    magrittr(>= 1.0.0),
-    shiny (>= 0.13.2),
+    mixdist,
+    magrittr,
+    shiny (>= 0.14.2),
     dplyr (>= 0.4.3),
     tidyr (>= 0.4.0),
     purrr (>= 0.2.1),
     ggplot2 (>= 1.0.0),
     rmarkdown (>= 1.0.0),
-    shinyjs 
-Suggests:
-    testthat,
+    shinyjs,
+    testthat (>= 1.0.0),
     shinytest
 URL: https://github.com/csiro-crop-informatics/granular
 BugReports: https://github.com/csiro-crop-informatics/granular/issues
