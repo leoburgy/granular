@@ -192,7 +192,10 @@ shinyServer(function(input, output, session) {
   })
   
   output$downloadTable <- downloadHandler(
-    filename = 
+    filename = "granular_output_table.csv",
+    content = function(file) {
+      write.csv(values$output_table, file, row.names = FALSE)
+    }
   )
   
   output$downloadPlot <- downloadHandler(
