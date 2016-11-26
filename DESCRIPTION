@@ -21,8 +21,7 @@ Imports:
     rmarkdown (>= 1.0.0),
     shinyjs 
 Suggests:
-    testthat,
-    shinytest
+    testthat
 URL: https://github.com/csiro-crop-informatics/granular
 BugReports: https://github.com/csiro-crop-informatics/granular/issues
 RoxygenNote: 5.0.1
