@@ -12,11 +12,11 @@ shinyServer(function(input, output, session) {
   values <- reactiveValues()
   
   granular <- reactiveValues()
-
+  
   observe({
     granular$version <- sessionInfo()
   })
-
+  
   
   output$granular_version <- renderText({
     paste0("granular - v", granular$version$otherPkgs$granular$Version)
@@ -34,14 +34,14 @@ shinyServer(function(input, output, session) {
     toggleClass('step3', "instgrey", (is.null(getData()) | any(as.logical(lapply(params[[1]], is.null))) | all(!as.logical(lapply(params[[2]], is.null)))))
     
     #Set toggle for the go button
-     toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
+    toggleState('goButton', condition = !any(as.logical(lapply(params[[2]], is.null))))
   })
   
   observe({
     #Hide tabs to start
     hide(selector = "#tabset li a[data-value=output]")
     hide(selector = "#tabset li a[data-value=summary]")
-    hide(selector = "#tabset li a[data-value=plots]")
+    hide(selector = "#tabset li a[data-value=downloads]")
   })
   
   observe({
@@ -54,7 +54,7 @@ shinyServer(function(input, output, session) {
       updateTabsetPanel(session, "tabset", "setup")
       hide(selector = "#tabset li a[data-value=output]")
       hide(selector = "#tabset li a[data-value=summary]")
-      hide(selector = "#tabset li a[data-value=plots]")
+      hide(selector = "#tabset li a[data-value=downloads]")
     })
   })
   
@@ -133,7 +133,7 @@ shinyServer(function(input, output, session) {
     
     values$params <- list(range = list(min_val = min_val, max_val = max_val), 
                           peaks = list(peak_A = peak_A, peak_B = peak_B, peak_C = peak_C))
-    })
+  })
   
   filteredData <- reactive({
     if(is.null(values$params[[1]][[1]])) {
@@ -156,38 +156,47 @@ shinyServer(function(input, output, session) {
   observe({
     if(input$goButton == 0) 
       return(NULL)
-    isolate({tData <- filteredData()
-            params <- values$params
-            means <- rev(unlist(params[[2]]))
-            ps <- tData[[1]]
-            n <- ncol(tData)
-            output_list <- vector("list", n - 1)
-            withProgress({
-              for(i in seq_len(n - 1)) {
-                incProgress(1/n, 
-                            "Calculating...", 
-                            paste("working on", 
-                                  names(tData)[i + 1],
-                                  "which is", 
-                                  i, "of", n - 1)
-                )
-                newfit <- granular::mix_dist(tData[[i + 1]], ps, 
-                                             names(tData)[i + 1], comp_means = means)
-                output_list[[i]] <- newfit[[1]]
-              }
-            })
-            values$output_list <- output_list
-            toggle(selector = "#tabset li a[data-value=output]")
-            toggle(selector = "#tabset li a[data-value=summary]")
-            toggle(selector = "#tabset li a[data-value=plots]")
-            updateTabsetPanel(session, "tabset", "output")
-            return(output_list)})
+    isolate({
+      tData <- filteredData()
+      params <- values$params
+      means <- rev(unlist(params[[2]]))
+      ps <- tData[[1]]
+      n <- ncol(tData)
+      output_list <- vector("list", n - 1)
+      withProgress({
+        for(i in seq_len(n - 1)) {
+          incProgress(1/n, 
+                      "Calculating...", 
+                      paste("working on", 
+                            names(tData)[i + 1],
+                            "which is", 
+                            i, "of", n - 1)
+          )
+          newfit <- granular::mix_dist(tData[[i + 1]], ps, 
+                                       names(tData)[i + 1], comp_means = means)
+          output_list[[i]] <- newfit[[1]]
+        }
+      })
+      values$output_list <- output_list
+      values$output_table <- bind_rows(output_list)
+      toggle(selector = "#tabset li a[data-value=output]")
+      toggle(selector = "#tabset li a[data-value=summary]")
+      toggle(selector = "#tabset li a[data-value=downloads]")
+      updateTabsetPanel(session, "tabset", "output")
+      
+    })
   })
   
   output$longDataTable <- renderDataTable({
-    if(is.null(values$output_list)) return(NULL)
-    bind_rows(values$output_list)
+    values$output_table
   })
+  
+  output$downloadTable <- downloadHandler(
+    filename = "granular_output_table.csv",
+    content = function(file) {
+      write.csv(values$output_table, file, row.names = FALSE)
+    }
+  )
   
   output$downloadPlot <- downloadHandler(
     filename = "granular_plots.zip",
