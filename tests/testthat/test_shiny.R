@@ -1,4 +1,4 @@
-library(shinytest)
+# library(shinytest)
 library(shinyjs)
 
 if(!requireNamespace("shinytest", quietly = TRUE)) {
