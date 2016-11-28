@@ -1,7 +1,6 @@
 # library(shinytest)
-library(shinyjs)
 
-if(!requireNamespace("shinytest", quietly = TRUE)) {
+if(!require("shinytest", quietly = TRUE)) {
   context("shinyapp")
   app <- shinytest::shinyapp$new("../../granular/shiny/granular/")
   
