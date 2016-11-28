@@ -1,6 +1,6 @@
 Package: granular
 Title: Resolving starch granule distributions
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Alex", "Whan", , "alexwhan@gmail.com", c("aut", "cre")),
     person("Emi", "Tanaka", , "etanaka@uow.edu.au", "aut")
@@ -19,8 +19,9 @@ Imports:
     purrr (>= 0.2.1),
     ggplot2 (>= 1.0.0),
     rmarkdown (>= 1.0.0),
-    shinyjs,
-    testthat (>= 1.0.0),
+Suggests:
+    testthat
+Extends:
     shinytest
 Remotes:
     MangoTheCat/shinytest
