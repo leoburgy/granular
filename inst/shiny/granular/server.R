@@ -79,33 +79,46 @@ shinyServer(function(input, output, session) {
   getFile <- reactive({
     input$restartButton
     if(!input$use_example) {
-      inFile <- input$file$datapath
+      inFile <- list(path = input$file$datapath,
+                     ext = tools::file_ext(input$file$name)
+      )
     } else {
-      inFile <- example_file()
+      inFile <- list(path = example_file(),
+                     ext = tools::file_ext(example_file())
+      )
     }
     
-    if(is.null(inFile)) return(NULL)
+    if(is.null(inFile$path)) return(NULL)
     return(inFile)
   })
   
   getData <- reactive({
     inFile <- getFile()
     if(is.null(inFile)) return(NULL)
-    ext <- tools::file_ext(inFile)
-    if(ext == "csv") {
-      wideData <- read.csv(inFile)
+    if(inFile$ext == "csv") {
+      wideData <- read.csv(inFile$path)
       tData <- gather(wideData, size, proportion, -sample) %>%
         mutate(size = as.numeric(sub("X", "", size))) %>% 
         spread(sample, proportion)
       return(tData)  
     }
-    if(ext %in% c("xlsx", "xls")) {
-      base <- read_excel("inFile")
-      if(!names(base)[1] == "Frequency (compatible)")
+    if(inFile$ext %in% c("xlsx", "xls")) {
+      if(inFile$ext == "xlsx") {
+        file.rename(inFile$path, 
+                    paste0(inFile$path, ".xlsx"))
+        base <- read_excel(paste0(inFile$path, ".xlsx"))
+      }
+      if(inFile$ext == "xls") {
+        file.rename(inFile$path, 
+                    paste0(inFile$path, ".xls"))
+        base <- read_excel(paste0(inFile$path, ".xls"))
+      }
       sizes <- base[3:nrow(base),1] %>% 
-          setNames("proportion")
+          setNames("size")
+      sizes$size <- as.numeric(sizes$size)
       samples <- base[3:nrow(base),as.vector(!is.na(base[1,]))]
-      names(samples) <- base[1,as.vector(!is.na(base[1,]))]
+      samples[,1:ncol(samples)] <- as.numeric(unlist(samples[,1:ncol(samples)]))
+      names(samples) <- make.names(base[1,as.vector(!is.na(base[1,]))])
       data <- cbind(sizes, samples)
       return(data)
     }
