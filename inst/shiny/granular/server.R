@@ -5,6 +5,7 @@ library(scales)
 library(shinyjs)
 library(ggplot2)
 library(granular)
+library(readxl)
 # source('../../../R/granular.R')
 
 shinyServer(function(input, output, session) {
@@ -90,11 +91,24 @@ shinyServer(function(input, output, session) {
   getData <- reactive({
     inFile <- getFile()
     if(is.null(inFile)) return(NULL)
-    wideData <- read.csv(inFile)
-    tData <- gather(wideData, size, proportion, -sample) %>%
-      mutate(size = as.numeric(sub("X", "", size))) %>% 
-      spread(sample, proportion)
-    return(tData)
+    ext <- tools::file_ext(inFile)
+    if(ext == "csv") {
+      wideData <- read.csv(inFile)
+      tData <- gather(wideData, size, proportion, -sample) %>%
+        mutate(size = as.numeric(sub("X", "", size))) %>% 
+        spread(sample, proportion)
+      return(tData)  
+    }
+    if(ext %in% c("xlsx", "xls")) {
+      base <- read_excel("inFile")
+      if(!names(base)[1] == "Frequency (compatible)")
+      sizes <- base[3:nrow(base),1] %>% 
+          setNames("proportion")
+      samples <- base[3:nrow(base),as.vector(!is.na(base[1,]))]
+      names(samples) <- base[1,as.vector(!is.na(base[1,]))]
+      data <- cbind(sizes, samples)
+      return(data)
+    }
   })
   
   output$mastersizer <- reactive({
