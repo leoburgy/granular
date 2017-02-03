@@ -23,9 +23,9 @@ shinyServer(function(input, output, session) {
   })
   
   observe({
-    toggle('select_data', condition = input$use_example)
-    toggle('file', condition = !input$use_example)
-    toggle('download_example', condition = input$use_example)
+    toggle(id = 'select_data', condition = input$use_example)
+    toggle(id = 'file', condition = !input$use_example)
+    toggle(id = 'download_example', condition = input$use_example)
     params <- values$params
     
     #Set class toggle for instruction text
