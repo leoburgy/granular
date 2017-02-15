@@ -30,7 +30,7 @@ mix_dist <- function(dist,
                      ps, 
                      comp_means,
                      sample_name = NULL,
-                     emnum=5
+                     emnum=10
 ) {
   if (is.null(comp_means))
     stop("ERROR: There were no component means supplied")
