@@ -21,9 +21,7 @@ get_heights <- function(dist, ps, means) {
 #' @param dist A numeric vector defining the distribution
 #' @param ps A numeric vector describing the granule sizes
 #' @param comp_means A named numeric vector defining the means (center) for each peak
-#' @param dist_name A string defining the name of the distribution
-#' @param printFit Logical. Whether or not to print the fir output to the console
-#' @param printPlot Logical. Whether or not to print the plot showing the fit
+#' @param sample_name An optional name for the sample
 #' @param emnum passed to mix() - A non-negative integer specifying the number of EM steps to be performed
 #'
 #' @return A list with the fit parameters for each distribution, and complete output from mixdist::mix()
@@ -31,8 +29,7 @@ get_heights <- function(dist, ps, means) {
 mix_dist <- function(dist,
                      ps, 
                      comp_means,
-                     printFit=TRUE,
-                     printPlot=TRUE,
+                     sample_name = NULL,
                      emnum=5
 ) {
   if (is.null(comp_means))
@@ -74,20 +71,13 @@ mix_dist <- function(dist,
   mixFit <- mixdist::mix(dat, 
                          initial_values, 
                          emsteps=emnum)
-  if (printPlot) {
-    # par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
-    # plot(mixFit, i
-    #      xlab=expression(paste("Log of particle size diameter (", mu, "m)")), 				 cex=2, cex.axis=2, cex.lab=2,
-    #      main=paste("Fit"#, dist_name
-    #                 ))
+  
+  if(!is.null(sample_name)) {
+    sample <- rep(sample_name, ncomp)
+    theFit <- cbind(sample, peak = names(comp_means), mixFit$parameters, mixFit$se)
+  } else {
+    theFit <- cbind(peak = names(comp_means), mixFit$parameters, mixFit$se)
   }
-  if (printFit) {
-    print(paste("Fit"#, dist_name
-    ))
-    print(mixFit)
-  }
-  sample <- rep(ncomp)
-  theFit <- cbind(sample, peak = names(comp_means), mixFit$parameters, mixFit$se)
   return(list(theFit, mixFit))		
 }
 
@@ -118,12 +108,12 @@ check_fit <- function(fit_output, dist, ps) {
 #'
 #' @return A mutated tbl with list column output
 #' @export
-new_mix <- function(.data, proportion, size, comp_means) {
+mix_grp_tbl <- function(.data, proportion, size, comp_means) {
   proportion <- lazyeval::lazy(proportion)
   size <- lazyeval::lazy(size)
   if(length(group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
-  out <- purrr::by_slice(.data, ~ mix_dist(dist = lazyeval::lazy_eval(proportion, .data),
-                                           ps = lazyeval::lazy_eval(size, .data),
+  out <- purrr::by_slice(.data, ~ mix_dist(dist = lazyeval::lazy_eval(proportion, .),
+                                           ps = lazyeval::lazy_eval(size, .),
                                            comp_means = comp_means)[[1]]
   )
 }
