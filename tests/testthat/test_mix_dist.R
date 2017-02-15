@@ -11,7 +11,7 @@ means_nonames <- setNames(means, NULL)
 test_that("mix_dist is behaving", {
   expect_equal(mix_dist(Dist[[2]], Dist[[1]], means, names(Dist)[2])[[1]], 
                ms1, tolerance = 1e-05)
-  expect_equal(mix_dist(Dist[[3]], Dist[[1]], means, names(Dist)[3])[[1]], 
+  expect_equal(suppressWarnings(mix_dist(Dist[[3]], Dist[[1]], means, names(Dist)[3]))[[1]], 
                ms2, tolerance = 1e-05)
   expect_equal(mix_dist(Dist[[4]], Dist[[1]], means, names(Dist)[4])[[1]], 
                ms3, tolerance = 1e-05)
