@@ -18,4 +18,3 @@ Dist
 A dataset containing the distributions from three samples
 }
 \keyword{datasets}
-

@@ -19,4 +19,3 @@ A named vector with heights for each mean
 \description{
 Get the heights at peaks
 }
-

@@ -23,7 +23,7 @@ Imports:
     testthat (>= 1.0.0),
     shinytest
 Remotes:
-    MangoTheCat/shinytest
+    rstudio/shinytest
 URL: https://github.com/csiro-crop-informatics/granular
 BugReports: https://github.com/csiro-crop-informatics/granular/issues
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.0

@@ -18,4 +18,3 @@ to the \code{shiny.host} option, if set, or \code{"127.0.0.1"} if not.}
 \description{
 Run the granular shiny app locally
 }
-

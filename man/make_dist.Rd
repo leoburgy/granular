@@ -17,4 +17,3 @@ A numeric vector describing the mixture distribution
 \description{
 Make a mixture distribution
 }
-
