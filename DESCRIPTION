@@ -21,7 +21,8 @@ Imports:
     rmarkdown (>= 1.0.0),
     shinyjs,
     testthat (>= 1.0.0),
-    shinytest
+    shinytest,
+    lazyeval (>= 0.1.10)
 Remotes:
     rstudio/shinytest
 URL: https://github.com/csiro-crop-informatics/granular
