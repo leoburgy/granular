@@ -4,7 +4,7 @@
 \alias{mix_dist}
 \title{use mix() to estimate underlying distributions}
 \usage{
-mix_dist(dist, ps, comp_means, sample_name = NULL, emnum = 5)
+mix_dist(dist, ps, comp_means, sample_name = NULL, emnum = 10)
 }
 \arguments{
 \item{dist}{A numeric vector defining the distribution}
