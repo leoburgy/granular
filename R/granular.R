@@ -29,12 +29,11 @@ get_heights <- function(dist, ps, means) {
 #' @return A list with the fit parameters for each distribution, and complete output from mixdist::mix()
 #' @export
 mix_dist <- function(dist,
-                    ps, 
-                    comp_means,
-                    dist_name,
-                    printFit=TRUE,
-                    printPlot=TRUE,
-                    emnum=5
+                     ps, 
+                     comp_means,
+                     printFit=TRUE,
+                     printPlot=TRUE,
+                     emnum=5
 ) {
   if (is.null(comp_means))
     stop("ERROR: There were no component means supplied")
@@ -52,7 +51,7 @@ mix_dist <- function(dist,
   comp_means <- comp_means[order(comp_means)]
   
   ncomp <- length(comp_means)
-
+  
   if(is.null(names(comp_means))) {
     names(comp_means) <- paste0("peak_", seq_len(ncomp))
     message(paste("No names supplied for means, providing default names:", 
@@ -65,7 +64,7 @@ mix_dist <- function(dist,
   dat <- data.frame("log_size"=log_ps[index_start:index_end],
                     "rfreq"=dist[index_start:index_end])
   
-    #calculate initial parameters
+  #calculate initial parameters
   heights_d <- get_heights(dat[["rfreq"]], dat[["log_size"]], log(comp_means))
   comp_weights <- heights_d/(sum(heights_d))
   
@@ -73,8 +72,8 @@ mix_dist <- function(dist,
   
   initial_values <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
   mixFit <- mixdist::mix(dat, 
-                initial_values, 
-                emsteps=emnum)
+                         initial_values, 
+                         emsteps=emnum)
   if (printPlot) {
     # par(mar=c(4, 6, 1, 1) + 0.1, ask=TRUE)
     # plot(mixFit, i
@@ -84,10 +83,10 @@ mix_dist <- function(dist,
   }
   if (printFit) {
     print(paste("Fit"#, dist_name
-                ))
+    ))
     print(mixFit)
   }
-  sample <- rep(dist_name, ncomp)
+  sample <- rep(ncomp)
   theFit <- cbind(sample, peak = names(comp_means), mixFit$parameters, mixFit$se)
   return(list(theFit, mixFit))		
 }
@@ -132,4 +131,23 @@ check_fit <- function(fit_output, dist, ps) {
   df <- data.frame(ps, fit_dist, dist)
   ss <- sum((df$fit_dist - df$dist)^2)
   return(ss)
+}
+
+#' Title
+#'
+#' @param .data A tbl grouped by each distribution
+#' @param proportion An unquoted variable name
+#' @param size An unquoted variable name
+#' @param comp_means A named vector defining the means of each component
+#'
+#' @return A mutated tbl with list column output
+#' @export
+new_mix <- function(.data, proportion, size, comp_means) {
+  proportion <- lazyeval::lazy(proportion)
+  size <- lazyeval::lazy(size)
+  if(length(group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
+  out <- purrr::by_slice(.data, ~ mix_dist(dist = lazyeval::lazy_eval(proportion, .data),
+                                           ps = lazyeval::lazy_eval(size, .data),
+                                           comp_means = comp_means)[[1]]
+  )
 }

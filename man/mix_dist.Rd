@@ -4,7 +4,7 @@
 \alias{mix_dist}
 \title{use mix() to estimate underlying distributions}
 \usage{
-mix_dist(dist, ps, comp_means, dist_name, printFit = TRUE, printPlot = TRUE,
+mix_dist(dist, ps, comp_means, printFit = TRUE, printPlot = TRUE,
   emnum = 5)
 }
 \arguments{
@@ -14,13 +14,13 @@ mix_dist(dist, ps, comp_means, dist_name, printFit = TRUE, printPlot = TRUE,
 
 \item{comp_means}{A named numeric vector defining the means (center) for each peak}
 
-\item{dist_name}{A string defining the name of the distribution}
-
 \item{printFit}{Logical. Whether or not to print the fir output to the console}
 
 \item{printPlot}{Logical. Whether or not to print the plot showing the fit}
 
 \item{emnum}{passed to mix() - A non-negative integer specifying the number of EM steps to be performed}
+
+\item{dist_name}{A string defining the name of the distribution}
 }
 \value{
 A list with the fit parameters for each distribution, and complete output from mixdist::mix()
