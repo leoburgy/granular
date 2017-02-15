@@ -86,7 +86,6 @@ mix_dist <- function(dist,
 #' @param fit_output A data frame output from mix_dist()
 #' @param dist A numeric vector defining the distribution
 #' @param ps A numeric vector describing the granule sizes
-#' @param title Logical. Should a title be added to the plot?
 #'
 #' @return a ggplot object
 #' @export
@@ -111,7 +110,7 @@ check_fit <- function(fit_output, dist, ps) {
 mix_grp_tbl <- function(.data, proportion, size, comp_means) {
   proportion <- lazyeval::lazy(proportion)
   size <- lazyeval::lazy(size)
-  if(length(group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
+  if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
   out <- purrr::by_slice(.data, ~ mix_dist(dist = lazyeval::lazy_eval(proportion, .),
                                            ps = lazyeval::lazy_eval(size, .),
                                            comp_means = comp_means)[[1]]

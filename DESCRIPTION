@@ -20,7 +20,6 @@ Imports:
     ggplot2 (>= 1.0.0),
     rmarkdown (>= 1.0.0),
     shinyjs,
-    testthat (>= 1.0.0),
     shinytest,
     lazyeval (>= 0.1.10)
 Suggests:
