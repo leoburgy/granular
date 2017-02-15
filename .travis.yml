@@ -2,7 +2,7 @@ language: r
 sudo: false
 
 cache:
-  packages:
+  packages
   directories:
     - "travis_phantomjs"
 before_install:
