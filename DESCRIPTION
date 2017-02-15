@@ -1,6 +1,6 @@
 Package: granular
 Title: Resolving starch granule distributions
-Version: 0.1.2
+Version: 0.2.0
 Authors@R: c(
     person("Alex", "Whan", , "alexwhan@gmail.com", c("aut", "cre")),
     person("Emi", "Tanaka", , "etanaka@uow.edu.au", "aut")
