@@ -91,30 +91,6 @@ mix_dist <- function(dist,
   return(list(theFit, mixFit))		
 }
 
-#' Get just the data.frame output from mix_dist
-#'
-#' @param dist_df A data.frame containing the distribution 
-#' @param ps A numeric vector describing the granule sizes
-#' @param comp_means A named numeric vector defining the means (center) for each peak
-#' @param dist_name A string defining the name of the distribution
-#' @param printFit Logical. Whether or not to print the fir output to the console
-#' @param printPlot Logical. Whether or not to print the plot showing the fit
-#' @param emnum passed to mix() - A non-negative integer specifying the number of EM steps to be performed
-#'
-#' @return A data.frame with the fit parameters for each distribution
-#' @export
-#'
-mix_dist_df <- function(dist_df,
-                        ps, 
-                        comp_means,
-                        dist_name,
-                        printFit=TRUE,
-                        printPlot=TRUE,
-                        emnum=5) {
-  mix_dist_out <- mix_dist(dist, ps, comp_means, dist_name, printFit, printPlot, emnum)
-  return(mix_dist_out[[1]])
-}
-
 #' A function to test how well the fit matches the data
 #' 
 #' @param fit_output A data frame output from mix_dist()
