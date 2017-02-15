@@ -12,18 +12,13 @@ install:
 
 # Adapt as necessary starting from here
 
-environment:
-  global:
-    WARNINGS_ARE_ERRORS: 1
-    USE_RTOOLS: true
-    
 build_script:
   - travis-tool.sh install_deps
   - travis-tool.sh install_github gaborcsardi/debugme
   - travis-tool.sh install_github MangoTheCat/processx
-  #- travis-tool.sh install_github MangoTheCat/webdriver
-  - travis-tool.sh install_github MangoTheCat/shinytest
+  - travis-tool.sh install_github MangoTheCat/webdriver
   - travis-tool.sh install_github rstudio/shiny
+  - travis-tool.sh install_github gaborcsardi/shinytest
 
 test_script:
   - travis-tool.sh run_tests
