@@ -113,6 +113,7 @@ mix_grp_tbl <- function(.data, proportion, size, comp_means) {
   if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
   out <- purrr::by_slice(.data, ~ mix_dist(dist = lazyeval::lazy_eval(proportion, .),
                                            ps = lazyeval::lazy_eval(size, .),
-                                           comp_means = comp_means)[[1]]
+                                           comp_means = comp_means)[[1]],
+                         .to = "mix_out"
   )
 }
