@@ -48,3 +48,24 @@ make_dist <- function(fit_output, ps) {
     purrr::reduce(`+`)
   return(dist_out)
 }
+
+#' Generate fit plots for a grouped tbl
+#'
+#' @param .data A grouped tbl
+#' @param fit_output Output from mix_dist
+#' @param dist A vector describing the distribution
+#' @param ps A vector describing the particle sizes
+#'
+#' @return A tbl with a list column of ggplot output
+#' @export
+ggfit_grp_tbl_ <- function(.data, fit_output, dist, ps) {
+  fit_output <- lazyeval::lazy(fit_output)
+  dist <- lazyeval::lazy(dist)
+  ps <- lazyeval::lazy(ps)
+  if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
+  # browser()
+  out <- purrr::by_slice(.data, ~ ggfit(lazyeval::lazy_eval(fit_output, .)[[1]],
+                                        dist = lazyeval::lazy_eval(dist, .)[[1]],
+                                        ps = lazyeval::lazy_eval(ps, .)[[1]]),
+                         .to = "ggfit_plot")
+}
