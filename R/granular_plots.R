@@ -58,7 +58,7 @@ make_dist <- function(fit_output, ps) {
 #'
 #' @return A tbl with a list column of ggplot output
 #' @export
-ggfit_grp_tbl_ <- function(.data, fit_output, dist, ps) {
+ggfit_grp_tbl <- function(.data, fit_output, dist, ps) {
   fit_output <- lazyeval::lazy(fit_output)
   dist <- lazyeval::lazy(dist)
   ps <- lazyeval::lazy(ps)

@@ -2,7 +2,7 @@
 
 export(check_fit)
 export(ggfit)
-export(ggfit_grp_tbl_)
+export(ggfit_grp_tbl)
 export(mix_dist)
 export(mix_grp_tbl)
 export(run_granular)
