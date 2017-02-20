@@ -4,18 +4,27 @@
 \alias{mix_dist}
 \title{use mix() to estimate underlying distributions}
 \usage{
-mix_dist(dist, ps, comp_means, sample_name = NULL, emnum = 10)
+mix_dist(dist, ps, mu_vec, pi_vec = NULL, sigma_vec = NULL,
+  peak_names = NULL, sample_name = NULL, emnum = 10, log_trans = TRUE)
 }
 \arguments{
 \item{dist}{A numeric vector defining the distribution}
 
 \item{ps}{A numeric vector describing the granule sizes}
 
-\item{comp_means}{A named numeric vector defining the means (center) for each peak}
+\item{mu_vec}{A vector defining distribution means (required)}
 
-\item{sample_name}{An optional name for the sample}
+\item{pi_vec}{A vector defining distribution proportions (optional)}
+
+\item{sigma_vec}{A vector defining distribution dispersion (optional)}
+
+\item{peak_names}{A vector defining peak names (optional)}
+
+\item{sample_name}{A character string defining the sample name (optional)}
 
 \item{emnum}{passed to mix() - A non-negative integer specifying the number of EM steps to be performed}
+
+\item{log_trans}{Logical. Should values be log-transformed?}
 }
 \value{
 A list with the fit parameters for each distribution, and complete output from mixdist::mix()
