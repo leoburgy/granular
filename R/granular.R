@@ -23,17 +23,21 @@ get_heights <- function(dist, ps, means) {
 #' @param comp_means A named numeric vector defining the means (center) for each peak
 #' @param sample_name An optional name for the sample
 #' @param emnum passed to mix() - A non-negative integer specifying the number of EM steps to be performed
+#' @param mixpar Optional - a data.frame defining mixpar from mixdist::mix()
 #'
 #' @return A list with the fit parameters for each distribution, and complete output from mixdist::mix()
 #' @export
 mix_dist <- function(dist,
                      ps, 
-                     comp_means,
+                     comp_means = NULL,
                      sample_name = NULL,
-                     emnum=10
+                     emnum=10,
+                     mixpar = NULL
 ) {
-  if (is.null(comp_means))
-    stop("ERROR: There were no component means supplied")
+  if (all(is.null(c(comp_means, mixpar))))
+    stop("ERROR: There were no component means or mixpar supplied")
+  if (!is.null(comp_means) & !is.numeric(comp_means))
+    stop("ERROR: comp_means is non-numeric")
   if (length(ps) != length(dist)) 
     stop("ERROR: The particle size and the distribution is not correct.") 
   if (!is.numeric(ps))
@@ -45,15 +49,32 @@ mix_dist <- function(dist,
   if (!all(dist>=0))
     stop("ERROR: Negative distribution value.")
   
-  comp_means <- comp_means[order(comp_means)]
+  if(!is.null(mixpar)) {
+    ncomp <- nrow(mixpar)
+    peak_names <- paste("peak", LETTERS[1:ncomp], sep = "_")
+  }
   
-  ncomp <- length(comp_means)
-  
-  if(is.null(names(comp_means))) {
-    names(comp_means) <- paste0("peak_", seq_len(ncomp))
-    message(paste("No names supplied for means, providing default names:", 
-                  names(comp_means)))
-  } 
+  if(is.null(mixpar)) {
+    comp_means <- comp_means[order(comp_means)]
+    
+    ncomp <- length(comp_means)
+    
+    if(is.null(names(comp_means))) {
+      names(comp_means) <- paste0("peak_", seq_len(ncomp))
+      message(paste("No names supplied for means, providing default names:", 
+                    names(comp_means)))
+    }
+    
+    peak_names <- names(comp_means)
+    
+    #calculate initial parameters
+    heights_d <- get_heights(dat[["rfreq"]], dat[["log_size"]], log(comp_means))
+    comp_weights <- heights_d/(sum(heights_d))
+    
+    comp_sds <- rep(diff(range(dat$log_size))/ncomp, times = ncomp)
+    
+    mixpar <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
+  }
   
   log_ps <- log(ps)
   index_start <- min(which(dist!=0)) # to remove trailing and leading 0 entries.
@@ -61,22 +82,15 @@ mix_dist <- function(dist,
   dat <- data.frame("log_size"=log_ps[index_start:index_end],
                     "rfreq"=dist[index_start:index_end])
   
-  #calculate initial parameters
-  heights_d <- get_heights(dat[["rfreq"]], dat[["log_size"]], log(comp_means))
-  comp_weights <- heights_d/(sum(heights_d))
-  
-  comp_sds <- rep(diff(range(dat$log_size))/ncomp, times = ncomp)
-  
-  initial_values <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
   mixFit <- mixdist::mix(dat, 
-                         initial_values, 
+                         mixpar, 
                          emsteps=emnum)
   
   if(!is.null(sample_name)) {
     sample <- rep(sample_name, ncomp)
-    theFit <- cbind(sample, peak = names(comp_means), mixFit$parameters, mixFit$se)
+    theFit <- cbind(sample, peak = peak_names, mixFit$parameters, mixFit$se)
   } else {
-    theFit <- cbind(peak = names(comp_means), mixFit$parameters, mixFit$se)
+    theFit <- cbind(peak = peak_names, mixFit$parameters, mixFit$se)
   }
   return(list(theFit, mixFit))		
 }
@@ -107,13 +121,17 @@ check_fit <- function(fit_output, dist, ps) {
 #'
 #' @return A mutated tbl with list column output
 #' @export
-mix_grp_tbl <- function(.data, proportion, size, comp_means) {
+mix_grp_tbl <- function(.data, proportion, size, comp_means = NULL, emnum = 10, mixpar = NULL) {
   proportion <- lazyeval::lazy(proportion)
   size <- lazyeval::lazy(size)
-  if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
+  if(all(class(.data) != "party_df")){
+    if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
+  }
   out <- purrr::by_slice(.data, ~ mix_dist(dist = lazyeval::lazy_eval(proportion, .),
                                            ps = lazyeval::lazy_eval(size, .),
-                                           comp_means = comp_means)[[1]],
+                                           comp_means = comp_means,
+                                           emnum = emnum,
+                                           mixpar = mixpar)[[1]],
                          .to = "mix_out"
   )
 }
