@@ -142,7 +142,7 @@ check_fit <- function(fit_output, dist, ps) {
 #' @param pi_vec A vector defining distribution proportions (optional)
 #' @param sigma_vec A vector defining distribution dispersion (optional)
 #' @param peak_names A vector defining peak names (optional)
-#' @param emnum 
+#' @param emnum passed to mix() - A non-negative integer specifying the number of EM steps to be performed
 #' @param size An unquoted variable name
 #' @param log_trans Logical. Should values be log-transformed?
 #'
