@@ -4,7 +4,8 @@
 \alias{mix_grp_tbl}
 \title{Title}
 \usage{
-mix_grp_tbl(.data, proportion, size, comp_means)
+mix_grp_tbl(.data, proportion, size, mu_vec, pi_vec = NULL,
+  sigma_vec = NULL, peak_names = NULL, emnum = 10, log_trans = TRUE)
 }
 \arguments{
 \item{.data}{A tbl grouped by each distribution}
@@ -13,7 +14,17 @@ mix_grp_tbl(.data, proportion, size, comp_means)
 
 \item{size}{An unquoted variable name}
 
-\item{comp_means}{A named vector defining the means of each component}
+\item{mu_vec}{A vector defining distribution means (required)}
+
+\item{pi_vec}{A vector defining distribution proportions (optional)}
+
+\item{sigma_vec}{A vector defining distribution dispersion (optional)}
+
+\item{peak_names}{A vector defining peak names (optional)}
+
+\item{emnum}{}
+
+\item{log_trans}{Logical. Should values be log-transformed?}
 }
 \value{
 A mutated tbl with list column output
