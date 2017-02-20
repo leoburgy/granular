@@ -20,26 +20,30 @@ get_heights <- function(dist, ps, means) {
 #'
 #' @param dist A numeric vector defining the distribution
 #' @param ps A numeric vector describing the granule sizes
-#' @param comp_means A named numeric vector defining the means (center) for each peak
-#' @param sample_name An optional name for the sample
+#' @param mu_vec A vector defining distribution means (required)
+#' @param pi_vec A vector defining distribution proportions (optional)
+#' @param sigma_vec A vector defining distribution dispersion (optional)
+#' @param peak_names A vector defining peak names (optional)
+#' @param sample_name A character string defining the sample name (optional)
 #' @param emnum passed to mix() - A non-negative integer specifying the number of EM steps to be performed
-#' @param mixpar Optional - a data.frame defining mixpar from mixdist::mix()
-#'
+#' @param log_trans Logical. Should values be log-transformed?
 #' @return A list with the fit parameters for each distribution, and complete output from mixdist::mix()
 #' @export
 mix_dist <- function(dist,
                      ps, 
-                     comp_means = NULL,
+                     mu_vec, 
+                     pi_vec = NULL, 
+                     sigma_vec = NULL, 
+                     peak_names = NULL, 
                      sample_name = NULL,
                      emnum=10,
-                     mixpar = NULL
-) {
-  if (all(is.null(c(comp_means, mixpar))))
-    stop("ERROR: There were no component means or mixpar supplied")
-  if (!is.null(comp_means) & !is.numeric(comp_means))
-    stop("ERROR: comp_means is non-numeric")
+                     log_trans=TRUE) {
+  if (is.null(mu_vec))
+    stop("ERROR: There were no component means supplied")
+  if (!is.numeric(mu_vec))
+    stop("ERROR: mu_vec (component means) supplied is non-numeric")
   if (length(ps) != length(dist)) 
-    stop("ERROR: The particle size and the distribution is not correct.") 
+    stop("ERROR: The particle size and the distribution are not the same length") 
   if (!is.numeric(ps))
     stop("ERROR: Non-numeric value in the particle size.")
   if (!is.numeric(dist))
@@ -48,39 +52,57 @@ mix_dist <- function(dist,
     stop("ERROR: Negative particle size value.")
   if (!all(dist>=0))
     stop("ERROR: Negative distribution value.")
+  if(!identical(mu_vec, mu_vec[order(mu_vec)]))
+    stop("ERROR: mu_vec needs to be in ascending order")
   
-  if(!is.null(mixpar)) {
-    ncomp <- nrow(mixpar)
-    peak_names <- paste("peak", LETTERS[1:ncomp], sep = "_")
+  #Get number of peaks
+  ncomp <- length(mu_vec)
+  
+  #Check _vec names
+  names_list <- list(
+    names(mu_vec),
+    names(pi_vec),
+    names(sigma_vec),
+    peak_names
+  )
+  
+  names_disagreement <- lapply(names_list, function(x) {
+    setdiff(x, names_list[[1]])
+  })
+  
+  if(any(lapply(names_disagreement, length) > 0))
+    stop("ERROR: There is disagreement in the peak names")
+  
+  if(all(lapply(names_list, length) == 0)) {
+    peak_names <- paste0("peak_", seq_len(ncomp))
+    message(paste("No names supplied for means, providing default names:", 
+                  peak_names))
+  } else {
+    peak_names <- names_list[[which.max(lapply(names_list, length))]]
   }
   
-  if(is.null(mixpar)) {
-    comp_means <- comp_means[order(comp_means)]
-    
-    ncomp <- length(comp_means)
-    
-    if(is.null(names(comp_means))) {
-      names(comp_means) <- paste0("peak_", seq_len(ncomp))
-      message(paste("No names supplied for means, providing default names:", 
-                    names(comp_means)))
-    }
-    
-    peak_names <- names(comp_means)
-    
-    #calculate initial parameters
-    heights_d <- get_heights(dat[["rfreq"]], dat[["log_size"]], log(comp_means))
-    comp_weights <- heights_d/(sum(heights_d))
-    
-    comp_sds <- rep(diff(range(dat$log_size))/ncomp, times = ncomp)
-    
-    mixpar <- mixdist::mixparam(log(comp_means), comp_sds, comp_weights)
-  }
-  
-  log_ps <- log(ps)
+  if(log_trans) ps <- log(ps)
   index_start <- min(which(dist!=0)) # to remove trailing and leading 0 entries.
   index_end <- max(which(dist!=0))
-  dat <- data.frame("log_size"=log_ps[index_start:index_end],
+  dat <- data.frame("size"=ps[index_start:index_end],
                     "rfreq"=dist[index_start:index_end])
+  
+  #calculate initial parameters
+  if(is.null(pi_vec)) {
+    if(log_trans) {
+      heights_d <- get_heights(dat[["rfreq"]], dat[["size"]], log(mu_vec))
+    } else heights_d <- get_heights(dat[["rfreq"]], dat[["size"]], mu_vec)
+    pi_vec <- heights_d/(sum(heights_d))
+  }
+  
+  if(is.null(sigma_vec)) {
+    sigma_vec <- rep(diff(range(dat$size))/ncomp, times = ncomp)
+  }
+  
+  if(log_trans) {
+    mixpar <- mixdist::mixparam(log(mu_vec), sigma_vec, pi_vec)
+  } else mixpar <- mixdist::mixparam(mu_vec, sigma_vec, pi_vec)
+  
   
   mixFit <- mixdist::mix(dat, 
                          mixpar, 
@@ -92,7 +114,7 @@ mix_dist <- function(dist,
   } else {
     theFit <- cbind(peak = peak_names, mixFit$parameters, mixFit$se)
   }
-  return(list(theFit, mixFit))		
+  return(list(theFit, mixFit))    
 }
 
 #' A function to test how well the fit matches the data
@@ -116,22 +138,35 @@ check_fit <- function(fit_output, dist, ps) {
 #'
 #' @param .data A tbl grouped by each distribution
 #' @param proportion An unquoted variable name
+#' @param mu_vec A vector defining distribution means (required)
+#' @param pi_vec A vector defining distribution proportions (optional)
+#' @param sigma_vec A vector defining distribution dispersion (optional)
+#' @param peak_names A vector defining peak names (optional)
+#' @param emnum 
 #' @param size An unquoted variable name
-#' @param comp_means A named vector defining the means of each component
+#' @param log_trans Logical. Should values be log-transformed?
 #'
 #' @return A mutated tbl with list column output
 #' @export
-mix_grp_tbl <- function(.data, proportion, size, comp_means = NULL, emnum = 10, mixpar = NULL) {
-  proportion <- lazyeval::lazy(proportion)
-  size <- lazyeval::lazy(size)
-  if(all(class(.data) != "party_df")){
-    if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
-  }
-  out <- purrr::by_slice(.data, ~ mix_dist(dist = lazyeval::lazy_eval(proportion, .),
-                                           ps = lazyeval::lazy_eval(size, .),
-                                           comp_means = comp_means,
+mix_grp_tbl <- function(.data,
+                        proportion, 
+                        size, 
+                        mu_vec, 
+                        pi_vec = NULL, 
+                        sigma_vec = NULL, 
+                        peak_names = NULL, 
+                        emnum = 10,
+                        log_trans = TRUE) {
+  proportion_col <- deparse(substitute(proportion))
+  size_col <- deparse(substitute(size))
+  if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
+  out <- purrr::by_slice(.data, ~ mix_dist(dist = .[[proportion_col]],
+                                           ps = .[[size_col]],
+                                           mu_vec = mu_vec,
+                                           pi_vec = pi_vec,
+                                           sigma_vec = sigma_vec,
                                            emnum = emnum,
-                                           mixpar = mixpar)[[1]],
+                                           log_trans = log_trans)[[1]],
                          .to = "mix_out"
   )
 }
