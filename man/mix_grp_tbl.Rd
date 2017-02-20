@@ -22,7 +22,7 @@ mix_grp_tbl(.data, proportion, size, mu_vec, pi_vec = NULL,
 
 \item{peak_names}{A vector defining peak names (optional)}
 
-\item{emnum}{}
+\item{emnum}{passed to mix() - A non-negative integer specifying the number of EM steps to be performed}
 
 \item{log_trans}{Logical. Should values be log-transformed?}
 }
