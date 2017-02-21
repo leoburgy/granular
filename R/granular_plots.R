@@ -1,3 +1,4 @@
+utils::globalVariables(".")
 #' A function for plotting a fit output against the true distribution
 #'
 #' @param fit_output A data frame output from mix_dist()
@@ -68,5 +69,5 @@ ggfit_grp_tbl <- function(.data, fit_output, proportion, size) {
                                         dist = .[[proportion_col]][[1]],
                                         ps = .[[size_col]][[1]]
   ))
-  out_df <- bind_cols(.data, out)
+  out_df <- dplyr::bind_cols(.data, out)
 }

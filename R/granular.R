@@ -1,4 +1,4 @@
-
+utils::globalVariables(".")
 #' Get the heights at peaks
 #'
 #' @param dist A numeric vector defining the distribution
