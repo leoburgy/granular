@@ -5,7 +5,8 @@
 \title{Title}
 \usage{
 mix_grp_tbl(.data, proportion, size, mu_vec, pi_vec = NULL,
-  sigma_vec = NULL, peak_names = NULL, emnum = 10, log_trans = TRUE)
+  sigma_vec = NULL, peak_names = NULL, emnum = 10, log_trans = TRUE,
+  parallel = FALSE)
 }
 \arguments{
 \item{.data}{A tbl grouped by each distribution}
@@ -25,6 +26,8 @@ mix_grp_tbl(.data, proportion, size, mu_vec, pi_vec = NULL,
 \item{emnum}{passed to mix() - A non-negative integer specifying the number of EM steps to be performed}
 
 \item{log_trans}{Logical. Should values be log-transformed?}
+
+\item{parallel}{Logical. Should multidplyr be used to run in parallel? (EXPERIMENTAL)}
 }
 \value{
 A mutated tbl with list column output
