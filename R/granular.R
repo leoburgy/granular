@@ -174,7 +174,6 @@ mix_grp_tbl <- function(.data,
                                         peak_names = peak_names)[[1]],
                      proportion = list(.[[proportion_col]]),
                      size = list(.[[size_col]])
-                     
     )
   }
   
@@ -183,7 +182,9 @@ mix_grp_tbl <- function(.data,
     
     cluster <- multidplyr::create_cluster()
     
-    clust_dat <- multidplyr::partition(.data, cluster = cluster)
+    groups <- lazyeval::as.lazy_dots(dplyr::groups(.data))
+    
+    clust_dat <- multidplyr::partition_(.data, groups, cluster = cluster)
     multidplyr::cluster_library(clust_dat, "granular")
     multidplyr::cluster_assign_value(clust_dat, "mu_vec", mu_vec)
     multidplyr::cluster_assign_value(clust_dat, "pi_vec", pi_vec)
@@ -194,14 +195,15 @@ mix_grp_tbl <- function(.data,
     multidplyr::cluster_assign_value(clust_dat, "log_trans", log_trans)
     multidplyr::cluster_assign_value(clust_dat, "emnum", emnum)
     
-    clust_mix <- dplyr::do(clust_dat, mix_out = mix_dist(dist = .[[proportion_col]],
-                                                         ps = .[[size_col]],
-                                                         mu_vec = mu_vec,
-                                                         pi_vec,
-                                                         sigma_vec,
-                                                         emnum = emnum,
-                                                         log_trans = log_trans,
-                                                         peak_names = peak_names)[[1]],
+    clust_mix <- dplyr::do(clust_dat, 
+                           mix_out = mix_dist(dist = .[[proportion_col]],
+                                              ps = .[[size_col]],
+                                              mu_vec = mu_vec,
+                                              pi_vec = pi_vec,
+                                              sigma_vec = sigma_vec,
+                                              emnum = emnum,
+                                              log_trans = log_trans,
+                                              peak_names = peak_names)[[1]],
                            proportion = list(.[[proportion_col]]),
                            size = list(.[[size_col]])
     )
