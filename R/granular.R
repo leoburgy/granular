@@ -160,13 +160,15 @@ mix_grp_tbl <- function(.data,
   proportion_col <- deparse(substitute(proportion))
   size_col <- deparse(substitute(size))
   if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
-  out <- purrr::by_slice(.data, ~ mix_dist(dist = .[[proportion_col]],
-                                           ps = .[[size_col]],
-                                           mu_vec = mu_vec,
-                                           pi_vec = pi_vec,
-                                           sigma_vec = sigma_vec,
-                                           emnum = emnum,
-                                           log_trans = log_trans)[[1]],
-                         .to = "mix_out"
+  out <- dplyr::do(.data, 
+            mix_out = mix_dist(dist = .[[proportion_col]],
+                              ps = .[[size_col]],
+                              mu_vec = mu_vec,
+                              pi_vec = pi_vec,
+                              sigma_vec = sigma_vec,
+                              emnum = emnum,
+                              log_trans = log_trans)[[1]],
+            proportion = list(.[[proportion_col]]),
+            size = list(.[[size_col]])
   )
 }
