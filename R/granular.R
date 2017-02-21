@@ -145,6 +145,7 @@ check_fit <- function(fit_output, dist, ps) {
 #' @param emnum passed to mix() - A non-negative integer specifying the number of EM steps to be performed
 #' @param size An unquoted variable name
 #' @param log_trans Logical. Should values be log-transformed?
+#' @param parallel Logical. Should multidplyr be used to run in parallel? (EXPERIMENTAL)
 #'
 #' @return A mutated tbl with list column output
 #' @export
@@ -156,19 +157,58 @@ mix_grp_tbl <- function(.data,
                         sigma_vec = NULL, 
                         peak_names = NULL, 
                         emnum = 10,
-                        log_trans = TRUE) {
+                        log_trans = TRUE,
+                        parallel = FALSE) {
   proportion_col <- deparse(substitute(proportion))
   size_col <- deparse(substitute(size))
   if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
-  out <- dplyr::do(.data, 
-            mix_out = mix_dist(dist = .[[proportion_col]],
-                              ps = .[[size_col]],
-                              mu_vec = mu_vec,
-                              pi_vec = pi_vec,
-                              sigma_vec = sigma_vec,
-                              emnum = emnum,
-                              log_trans = log_trans)[[1]],
-            proportion = list(.[[proportion_col]]),
-            size = list(.[[size_col]])
-  )
+  if(!parallel) {
+    out <- dplyr::do(.data, 
+                     mix_out = mix_dist(dist = .[[proportion_col]],
+                                        ps = .[[size_col]],
+                                        mu_vec = mu_vec,
+                                        pi_vec = pi_vec,
+                                        sigma_vec = sigma_vec,
+                                        emnum = emnum,
+                                        log_trans = log_trans,
+                                        peak_names = peak_names)[[1]],
+                     proportion = list(.[[proportion_col]]),
+                     size = list(.[[size_col]])
+                     
+    )
+  }
+  
+  if(parallel) {
+    if(!requireNamespace("multidplyr", quietly = TRUE)) stop("package multidplyr is not installed")
+    
+    cluster <- multidplyr::create_cluster()
+    
+    clust_dat <- multidplyr::partition(.data, cluster = cluster)
+    multidplyr::cluster_library(clust_dat, "granular")
+    multidplyr::cluster_assign_value(clust_dat, "mu_vec", mu_vec)
+    multidplyr::cluster_assign_value(clust_dat, "pi_vec", pi_vec)
+    multidplyr::cluster_assign_value(clust_dat, "sigma_vec", sigma_vec)
+    multidplyr::cluster_assign_value(clust_dat, "peak_names", peak_names)
+    multidplyr::cluster_assign_value(clust_dat, "proportion_col", proportion_col)
+    multidplyr::cluster_assign_value(clust_dat, "size_col", size_col)
+    multidplyr::cluster_assign_value(clust_dat, "log_trans", log_trans)
+    multidplyr::cluster_assign_value(clust_dat, "emnum", emnum)
+    
+    clust_mix <- dplyr::do(clust_dat, mix_out = mix_dist(dist = .[[proportion_col]],
+                                                         ps = .[[size_col]],
+                                                         mu_vec = mu_vec,
+                                                         pi_vec,
+                                                         sigma_vec,
+                                                         emnum = emnum,
+                                                         log_trans = log_trans,
+                                                         peak_names = peak_names)[[1]],
+                           proportion = list(.[[proportion_col]]),
+                           size = list(.[[size_col]])
+    )
+    
+    out <- tibble::as_tibble(dplyr::collect(clust_mix))
+    
+  }
+  
+  return(out)
 }

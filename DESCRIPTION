@@ -20,14 +20,15 @@ Imports:
     ggplot2 (>= 1.0.0),
     rmarkdown (>= 1.0.0),
     shinyjs,
-    shinytest,
-    lazyeval (>= 0.1.10)
+    lazyeval (>= 0.1.10),
+    tibble
 Suggests:
-    testthat
-Extends:
-    shinytest
+    testthat,
+    shinytest,
+    multidplyr
 Remotes:
-    rstudio/shinytest
+    rstudio/shinytest,
+    hadley/multidplyr
 URL: https://github.com/csiro-crop-informatics/granular
 BugReports: https://github.com/csiro-crop-informatics/granular/issues
 RoxygenNote: 6.0.0
