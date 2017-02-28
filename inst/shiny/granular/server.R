@@ -5,7 +5,6 @@ library(scales)
 library(shinyjs)
 library(ggplot2)
 library(granular)
-# source('../../../R/granular.R')
 
 shinyServer(function(input, output, session) {
   
@@ -157,6 +156,9 @@ shinyServer(function(input, output, session) {
     if(input$goButton == 0) 
       return(NULL)
     isolate({
+      shinyjs::disable('restartButton')
+      shinyjs::disable('select_data')
+      shinyjs::disable('goButton')
       tData <- filteredData()
       params <- values$params
       means <- rev(unlist(params[[2]]))
@@ -183,7 +185,9 @@ shinyServer(function(input, output, session) {
       toggle(selector = "#tabset li a[data-value=summary]")
       toggle(selector = "#tabset li a[data-value=downloads]")
       updateTabsetPanel(session, "tabset", "output")
-      
+      shinyjs::enable('restartButton')
+      shinyjs::enable('select_data')
+      shinyjs::enable('goButton')
     })
   })
   
