@@ -4,8 +4,8 @@
 \alias{run_granular}
 \title{Run the granular shiny app locally}
 \usage{
-run_granular(port = NULL, launch.browser = getOption("shiny.launch.browser",
-  interactive()), host = getOption("shiny.host", "127.0.0.1"))
+run_granular(port = NULL, launch.browser = TRUE,
+  host = getOption("shiny.host", "127.0.0.1"))
 }
 \arguments{
 \item{port}{The TCP port that the application should listen on. Defaults to choosing a random port.}
