@@ -96,7 +96,7 @@ mix_dist <- function(dist,
   }
   
   if(is.null(sigma_vec)) {
-    sigma_vec <- rep(diff(range(dat$size))/ncomp, times = ncomp)
+    sigma_vec <- rep(diff(range(dat$size))/ncomp, times = ncomp) * pi_vec
   }
   
   if(log_trans) {
