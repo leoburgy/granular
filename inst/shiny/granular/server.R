@@ -172,8 +172,8 @@ shinyServer(function(input, output, session) {
                             "which is", 
                             i, "of", n - 1)
           )
-          newfit <- granular::mix_dist(tData[[i + 1]], ps, 
-                                       names(tData)[i + 1], comp_means = means)
+          newfit <- granular::mix_dist(tData[[i + 1]], ps, mu_vec = means,
+                                       sample_name = names(tData)[i + 1])
           output_list[[i]] <- newfit[[1]]
         }
       })

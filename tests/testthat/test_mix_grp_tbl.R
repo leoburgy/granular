@@ -13,6 +13,11 @@ grp_tbl <- suppressWarnings(Dist %>%
   mix_grp_tbl(proportion, size, means))
 
 test_that("mix_grp_tbl is behaving", {
-  expect_equal(grp_tbl %>% unnest %>% filter(row_number() > 6) %>% data.frame %>% mutate_at(vars(sample), as.factor), 
+  expect_equal(grp_tbl %>% 
+                 select(sample, mix_out) %>% 
+                 unnest %>% 
+                 filter(row_number() > 6) %>% 
+                 data.frame %>% 
+                 mutate_at(vars(sample), as.factor), 
                ms3, tolerance = 1e-05)
 })

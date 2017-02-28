@@ -4,19 +4,19 @@
 \alias{ggfit_grp_tbl}
 \title{Generate fit plots for a grouped tbl}
 \usage{
-ggfit_grp_tbl(.data, fit_output, dist, ps)
+ggfit_grp_tbl(.data, fit_output, proportion, size)
 }
 \arguments{
-\item{.data}{A grouped tbl}
+\item{.data}{A tbl output from mix_grp_tbl, with list columns}
 
-\item{fit_output}{Output from mix_dist}
+\item{fit_output}{Variable name holding mix_dist_output}
 
-\item{dist}{A vector describing the distribution}
+\item{proportion}{Variable name holding distribution as a list}
 
-\item{ps}{A vector describing the particle sizes}
+\item{size}{Variable name holding particle size as a list}
 }
 \value{
-A tbl with a list column of ggplot output
+The original tbl with a list column of ggplot output
 }
 \description{
 Generate fit plots for a grouped tbl

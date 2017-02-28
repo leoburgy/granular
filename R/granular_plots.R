@@ -1,3 +1,4 @@
+utils::globalVariables(".")
 #' A function for plotting a fit output against the true distribution
 #'
 #' @param fit_output A data frame output from mix_dist()
@@ -50,21 +51,23 @@ make_dist <- function(fit_output, ps) {
 
 #' Generate fit plots for a grouped tbl
 #'
-#' @param .data A grouped tbl
-#' @param fit_output Output from mix_dist
-#' @param dist A vector describing the distribution
-#' @param ps A vector describing the particle sizes
+#' @param .data A tbl output from mix_grp_tbl, with list columns
+#' @param fit_output Variable name holding mix_dist_output
+#' @param proportion Variable name holding distribution as a list
+#' @param size Variable name holding particle size as a list
 #'
-#' @return A tbl with a list column of ggplot output
+#' @return The original tbl with a list column of ggplot output
 #' @export
-ggfit_grp_tbl <- function(.data, fit_output, dist, ps) {
-  fit_output <- lazyeval::lazy(fit_output)
-  dist <- lazyeval::lazy(dist)
-  ps <- lazyeval::lazy(ps)
-  if(length(dplyr::group_size(.data)) < 2) warning(paste("There is only one group - check data groupings"))
+ggfit_grp_tbl <- function(.data, fit_output, proportion, size) {
+  fit_col <- deparse(substitute(fit_output))
+  proportion_col <- deparse(substitute(proportion))
+  size_col <- deparse(substitute(size))
+  if(length(dplyr::group_size(.data)) < 2 & nrow(.data) > 1) warning(paste("There is only one group - check data groupings"))
+  if(is.null(dplyr::group_size(.data))) stop("ERROR: data is not grouped")
   # browser()
-  out <- purrr::by_slice(.data, ~ ggfit(lazyeval::lazy_eval(fit_output, .)[[1]],
-                                        dist = lazyeval::lazy_eval(dist, .)[[1]],
-                                        ps = lazyeval::lazy_eval(ps, .)[[1]]),
-                         .to = "ggfit_plot")
+  out <- dplyr::do(.data, ggfit = ggfit(.[[fit_col]],
+                                        dist = .[[proportion_col]][[1]],
+                                        ps = .[[size_col]][[1]]
+  ))
+  out_df <- dplyr::bind_cols(.data, out)
 }
