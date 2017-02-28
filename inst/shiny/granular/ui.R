@@ -37,9 +37,7 @@ navbarPage(
                                        p(id = "step2", class = "inst", "2. Click and drag on the plot to identify the area with true peaks"),
                                        p(id = "step3", class = "inst", "3. Click to identify peaks")),
                               actionButton("goButton", "4. Process Data", width = '100%')
-                    )#,
-                    # tags$form(id = 'restart', class = 'well',
-                    #           actionButton("restartButton", "Start again", width = '100%'))
+                    )
            ),
            mainPanel(
              # textOutput("granular_version"),
