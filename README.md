@@ -8,7 +8,7 @@ Granular is an R package containing a shiny app the implements the mix function 
 
 The shiny app is designed to make it as easy as possible to use the power of the mixdist package to estimate the underlying distributions of starch granule populations from a mix of granule sizes.
 
-###Installation and usage
+### Installation and usage
 
 granular can be installed locally with `devtools::install_github("csiro-crop-informatics/granular")`.
 
